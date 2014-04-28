@@ -1,0 +1,221 @@
+
+package RPG;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import RPG.Items.*;
+import org.newdawn.slick.Animation;
+
+public class FileHandler {
+
+    private static final String USER_INFILE = "data/saved/user.txt";
+    private static final String USER_OUTFILE = "data/saved/userout.txt";
+    
+    private BufferedReader reader;
+    private BufferedWriter writer;
+    
+    private RPG theGame;
+    
+    public FileHandler(RPG game) throws IOException{
+        theGame=game;
+    }
+    
+    public void readUserData() throws FileNotFoundException, IOException{
+        User user = theGame.getUser();
+        reader = new BufferedReader(new FileReader(USER_INFILE));
+        String line = reader.readLine();
+
+        while (line != null) {
+            line = line.replace("\n", "").replace("\r,", "");
+            //System.out.println("LINE: "+line);
+            
+            Pattern pattern = Pattern.compile("([a-zA-Z]*)=(.+)");
+            Matcher matcher = pattern.matcher(line);
+            
+            if (matcher.matches()) {
+                String group1 = matcher.group(1);
+                String group2 = matcher.group(2);
+                //System.out.println("GROUP1: " + group1);
+                //System.out.println("GROUP2: " + group2);
+                switch (group1) {
+                    case "sprite":
+                        switch (group2) {
+                            case "up":
+                                user.setSprite(user.getUp());
+                                break;
+                            case "down":
+                                user.setSprite(user.getDown());
+                                break;
+                            case "left":
+                                user.setSprite(user.getLeft());
+                                break;
+                            case "Right":
+                                user.setSprite(user.getRight());
+                                break;
+                        }
+                        break;
+
+                    case "xpos":
+                        try {
+                            user.setXpos(Float.parseFloat(group2));
+                            //System.out.println("XPOS: "+user.getXpos());
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.err.println("SAVE USER DATA ERROR:\n" + "cannot save: " + group2 + " to xpos");
+                            System.exit(0);
+                        }
+                        break;
+
+                    case "ypos":
+                        try {
+                            user.setYpos(Float.parseFloat(group2));
+                            //System.out.println("XPOS: "+user.getXpos());
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.err.println("SAVE USER DATA ERROR:\n" + "cannot save: " + group2 + " to ypos");
+                            System.exit(0);
+                        }
+                        break;
+                        
+                    case "inventory":
+                        String[] splitgroup2 = group2.split(",");
+                        for( String string : splitgroup2){
+                            try{
+                                Class theClass = Class.forName("RPG.Items."+string);
+                                Object theObject = theClass.newInstance();
+                                if(theObject instanceof MyItem){
+                                    user.aquireItem((MyItem)theObject);
+                                    /*for( MyItem item : user.getInventory()){
+                                        System.out.println(item.toString());
+                                    }*/
+                                }
+                            }catch(Exception e){
+                                e.printStackTrace();
+                                System.exit(0);
+                            }
+                        }
+                        break;
+                        
+                    case "equipped":
+                        String[] splitgroup = group2.split(",");
+                        for( String string : splitgroup){
+                            try{
+                                Class theClass = Class.forName("RPG.Items."+string);
+                                Object theObject = theClass.newInstance();
+                                if(theObject instanceof MyItem){
+                                    user.equipItem((MyItem)theObject);
+                                    /*for( MyItem item : user.getEquipped()){
+                                        System.out.println(item.toString());
+                                    }*/
+                                }
+                            }catch(Exception e){
+                                e.printStackTrace();
+                                System.exit(0);
+                            }
+                        }
+                        break;
+                        
+                    case "damage":
+                        user.setDamage(Integer.parseInt(group2));
+                        break;
+                        
+                    case "str":
+                        user.setStr(Integer.parseInt(group2));
+                        break;
+                        
+                    case "intel":
+                        user.setIntel(Integer.parseInt(group2));
+                        break;
+                        
+                    case "dex": 
+                        user.setDex(Integer.parseInt(group2));
+                        break;
+                        
+                    case "hp":
+                        user.setHp(Integer.parseInt(group2));
+                        break;
+                        
+                    case "mp":
+                        user.setMp(Integer.parseInt(group2));
+                        break;
+                        
+                }
+            }
+            line = reader.readLine();
+        }
+        reader.close();
+    }
+    
+    public void writeUserData() throws FileNotFoundException, IOException{
+        User user = theGame.getUser();
+        writer = new BufferedWriter(new FileWriter(USER_INFILE));
+        
+        Animation sprite = user.getSprite();
+        String spritestring= "sprite=";
+        if(sprite == user.getUp()){
+            spritestring += "up";
+        }else if(sprite == user.getDown()){
+            spritestring += "down";
+        }else if(sprite == user.getLeft()){
+            spritestring += "left";
+        }else if(sprite == user.getRight()){
+            spritestring += "right";
+        }
+        
+        
+        float xpos=user.getXpos(), ypos=user.getYpos();
+        String xposstring = "xpos="+Float.toString(xpos), yposstring = "ypos="+Float.toString(ypos);
+        
+        String invstring = "inventory="; 
+        for(MyItem item : user.getInventory()){
+            if(item!=null){
+                invstring += item.getClass().getSimpleName() + ",";
+            }
+        }
+        
+        String equipstring = "equipped=";
+        for(MyItem item : user.getEquipped()){
+            if(item!=null){
+                equipstring += item.getClass().getSimpleName() + ",";
+            }
+        }
+        
+        int dmg=user.getDamage(),str=user.getStr(), intel=user.getIntel(), dex=user.getDex(), hp=user.getHp(), mp=user.getMp();
+        String dmgstring="dmg="+Integer.toString(dmg), 
+                strstring="str="+Integer.toString(str), 
+                intelstring="intel="+Integer.toString(intel), 
+                dexstring="dex="+Integer.toString(dex), 
+                hpstring="hp="+Integer.toString(hp), 
+                mpstring="mp="+Integer.toString(mp);
+        
+        String[] userstring = {spritestring, xposstring, yposstring, 
+                                invstring, equipstring, 
+                                dmgstring, strstring, intelstring, dexstring, hpstring, mpstring};
+        
+        for(String string : userstring){
+            writer.write(string);
+            writer.newLine();
+        }
+        
+        writer.close();
+                
+    }
+    
+    public void resetUserData() throws IOException{
+        writer = new BufferedWriter(new FileWriter(USER_INFILE));
+        
+        String[] resetstring = {"sprite=down","xpos=32","ypos=32","inventory=","equipped=","damage=1","str=5","intel=5","dex=5","hp=15","mp=10"};
+        for( String string : resetstring){
+            writer.write(string);
+            writer.newLine();
+        }
+        writer.close();
+    }
+    
+}

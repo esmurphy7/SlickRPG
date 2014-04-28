@@ -1,0 +1,85 @@
+
+package RPG;
+
+import RPG.Items.*;
+import java.util.ArrayList;
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class User extends Character{
+    
+    
+    private ArrayList<MyItem> inventory = new ArrayList<MyItem>();
+    /*Main hand, off hand, head, chest, legs, feet, hands/wrists*/
+    private MyItem[] equipped = new MyItem[7];
+    
+    
+    public User() throws SlickException{
+        setSpriteSheet(new SpriteSheet(new Image("data/images/overworldsheet.png"), 15, 24, 2, 1));
+        SpriteSheet overworldsheet = getSpriteSheet();
+        int duration = getDuration();
+        setUp(new Animation(overworldsheet, 4, 1, 7, 1, true, duration, false));
+        setDown(new Animation(overworldsheet, 0, 0, 3, 0, true, duration, false));
+        setLeft(new Animation(overworldsheet, 4, 0, 7, 0, true, duration, false));
+        setRight(new Animation(overworldsheet, 0, 1, 3, 1, true, duration, false));
+        setSprite(getDown());
+    }
+   
+    public ArrayList<MyItem> getInventory(){
+        return this.inventory;
+    }
+    public void setInventory(ArrayList<MyItem> inv){
+        this.inventory=inv;
+    }
+    public MyItem[] getEquipped(){
+        return this.equipped;
+    }
+    public void setEquipped(MyItem[] eqpd){
+        this.equipped=eqpd;
+    }
+    
+    public MyItem searchInventory(MyItem theItem) {
+        for (MyItem item : inventory) {
+            if (item.equals(theItem)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public void aquireItem(MyItem item) {
+        //if inventory is not full
+        inventory.add(item);
+    }
+
+    public void equipItem(MyItem item) {
+        if (item instanceof MainHand) {
+            equipped[0] = item;
+        } 
+    }
+
+    public MyItem getMainHand() {
+        return equipped[0];
+    }
+    public MyItem getOffHand() {
+        return equipped[1];
+    }
+    public MyItem getHead() {
+        return equipped[2];
+    }
+    public MyItem getChest() {
+        return equipped[3];
+    }
+    public MyItem getLegs() {
+        return equipped[4];
+    }
+    public MyItem getFeet() {
+        return equipped[5];
+    }
+    public MyItem getWrists() {
+        return equipped[6];
+    }
+    
+}

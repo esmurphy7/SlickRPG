@@ -1,0 +1,396 @@
+
+package RPG;
+
+import RPG.Items.*;
+import Interface.MainMenuController;
+import Interface.View.MainMenuUI;
+import java.awt.Component;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JRootPane;
+import javax.swing.WindowConstants;
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.tests.GUITest;
+import org.newdawn.slick.tests.xml.Item;
+import org.newdawn.slick.tiled.TiledMap;
+
+
+public class RPG extends BasicGame{
+
+    private GameContainer theContainer;
+    
+    private TiledMap map;
+    private static final int SIZE = 32;
+    private boolean[][] blockable;
+    private ArrayList<MyItem> items = new ArrayList();
+    private ArrayList<Character> characters = new ArrayList();
+    private User user;
+    private FileHandler filehandler;
+    
+    public RPG() throws SlickException, IOException{
+        super("RPG");
+        filehandler = new FileHandler(this);
+    }
+    
+    public User getUser(){
+        return this.user;
+    }
+    public void setUser(User u){
+        this.user=u;
+    }
+    
+    public static void main(String[] args) throws IOException{
+        
+        try{
+            AppGameContainer app = new AppGameContainer(new RPG());
+            app.setDisplayMode(750, 750, false);
+            
+            app.start();
+        }catch (SlickException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void init(GameContainer gc) throws SlickException {
+        theContainer = gc;
+        map = new TiledMap("data/maps/level1.tmx");
+        blockable = new boolean[map.getWidth()][map.getHeight()];
+        user = new User();
+        MyItem sword1 = new Sword1();
+        addItem(sword1, 3, 7);
+        Guard guard = new Guard();
+        addCharacter(guard, 7, 7);
+        guard.setSprite(guard.getUp());
+        user.setSprite(user.getDown());
+        loadGame();
+
+    }
+
+    @Override
+    public void update(GameContainer container, int delta) throws SlickException {
+           Input input = container.getInput();
+           float fdelta = delta*0.1f;
+
+           detectBlockage();
+           
+           updateUser(delta);
+           checkLOS(delta);
+           updateCharacters(delta);
+           
+           if(input.isKeyPressed(Input.KEY_S)){
+               saveGame();
+           }else if(input.isKeyPressed(Input.KEY_R)){
+               resetGame();
+           }
+    }
+
+    public void updateUser(int delta) throws SlickException{
+        float fdelta = delta*0.1f;
+        Input input = theContainer.getInput();
+        
+        if(input.isKeyDown(Input.KEY_UP)){
+               user.setSprite(user.getUp());
+               if(user.getYpos()-fdelta > 0){
+                    if(!(isBlocked(user.getXpos(), user.getYpos() - fdelta) || isBlocked(user.getXpos()+SIZE-1, user.getYpos() - fdelta))){
+                         user.getSprite().update(delta);
+                        user.setYpos(user.getYpos() - fdelta);
+                    }
+               }
+           }else if(input.isKeyDown(Input.KEY_DOWN)){
+               user.setSprite(user.getDown());
+               if(user.getYpos()+SIZE+fdelta < map.getHeight()*SIZE){  
+                    if(!(isBlocked(user.getXpos(), user.getYpos()+SIZE+fdelta) || isBlocked(user.getXpos() + SIZE-1, user.getYpos()+SIZE+fdelta))){
+                         user.getSprite().update(delta);
+                         user.setYpos(user.getYpos()+fdelta);
+                    }
+               }
+           }else if(input.isKeyDown(Input.KEY_LEFT)){
+                    user.setSprite(user.getLeft());
+                    if(user.getXpos()-fdelta > 0){
+                        if(!(isBlocked(user.getXpos()-fdelta, user.getYpos()) || isBlocked(user.getXpos()-fdelta, user.getYpos()+SIZE-1))){
+                            user.getSprite().update(delta);
+                            user.setXpos(user.getXpos()-fdelta);
+                        }
+                    }
+           }else if(input.isKeyDown(Input.KEY_RIGHT)){
+                    user.setSprite(user.getRight());
+                    if(user.getXpos()+SIZE+fdelta < map.getWidth()*SIZE){
+                        if(!(isBlocked(user.getXpos()+SIZE+fdelta, user.getYpos()) || isBlocked(user.getXpos()+SIZE+fdelta, user.getYpos()+SIZE-1))){
+                            user.getSprite().update(delta);
+                            user.setXpos(user.getXpos()+fdelta);
+                        }
+                    }
+           }
+        
+        if(input.isKeyDown(Input.KEY_Z)){
+               Animation direction = user.getSprite();
+               MyItem theItem = null;
+               
+               int tileX = Math.round(user.getXpos()/SIZE);
+               int tileY = Math.round(user.getYpos()/SIZE);
+               //System.out.println("TEST "+83.399/32); prints 2.606
+               
+               if(direction == user.getUp()){
+                   for(MyItem item : items){
+                       if(item.getyTile() == tileY-1){
+                           theItem = item;
+                       }
+                   }
+               }else if(direction == user.getDown()){
+                   for(MyItem item : items){
+                       if(item.getyTile() == tileY+1){
+                           theItem = item;
+                       }
+                   }
+               }else if(direction == user.getLeft()){
+                   for(MyItem item : items){
+                       if(item.getxTile() == tileX-1){
+                           theItem = item;
+                       }
+                   }
+               }else if(direction == user.getRight()){
+                   for(MyItem item : items){
+                       if(item.getxTile() == tileX+1){
+                           theItem = item;
+                       }
+                   }
+               }
+
+               //System.out.printf("USER: XPOS: %f YPOS: %f\n", user.getXpos(), user.getYpos());
+               //System.out.printf("USER: XTILE: %d YTILE: %d\n", Math.round(user.getXpos()/SIZE), Math.round(user.getYpos()/SIZE));
+               
+               if (theItem != null) {
+                   System.out.println("FOUND ITEM");
+                   user.aquireItem(theItem);
+                   removeItem(theItem);
+               }
+           }
+    }
+    
+    public void updateCharacters(int delta){
+        float fdelta = delta*0.1f;
+
+        for(Character character : characters){
+            if(character.isMoving()){
+                //System.out.println("CHARACTER MOVING");
+                if(character.getSprite() == character.getUp()){
+                    
+                    if(!(isBlocked(character.getXpos(), character.getYpos() - fdelta) || isBlocked(character.getXpos()+SIZE-1, character.getYpos() - fdelta))){
+                        character.getSprite().update(delta);
+                        character.setYpos(character.getYpos() - fdelta);
+                        System.out.println("CHARACTER YPOS: "+character.getXpos());
+                    }
+                }else if(character.getSprite() == character.getDown()){
+                    if(!(isBlocked(character.getXpos(), character.getYpos()+SIZE+fdelta) || isBlocked(character.getXpos() + SIZE-1, character.getYpos()+SIZE+fdelta))){
+                        character.getSprite().update(delta);
+                        character.setYpos(character.getYpos()+fdelta);
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    @Override
+    public void render(GameContainer gc, Graphics grphcs) throws SlickException {
+        map.render(0, 0);
+        user.getSprite().draw((int)user.getXpos(), (int)user.getYpos());
+        
+        drawItems();
+        drawCharacters();
+    }
+    
+    /*
+     * For each object layer in the map do
+     *      For each object in the layer do
+     *          if the object is blockable, set blockable's index that corresponds to the objects position to true
+     */
+    public void detectBlockage(){
+        for(int collisionLayerID=0; collisionLayerID<map.getObjectGroupCount(); collisionLayerID++){
+            for(int objectID=0; objectID<map.getObjectCount(collisionLayerID); objectID++){
+                if(map.getObjectProperty(collisionLayerID, objectID, "blockable", "false").equals("true")){
+                    blockable[map.getObjectX(collisionLayerID, objectID)/SIZE][map.getObjectY(collisionLayerID, objectID)/SIZE] = true;
+                }
+            }
+        }
+        for(MyItem item : items){
+            blockable[item.getxTile()][item.getyTile()] = true;
+        }
+        for(Character character : characters){
+            int xTile = (int) (character.getXpos()/SIZE);
+            int yTile = (int) (character.getYpos()/SIZE);
+            blockable[xTile][yTile] = true;
+        }
+    }
+    
+    public boolean isBlocked(float x, float y){
+        if(blockable[(int)x/SIZE][(int)y/SIZE] == true){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    public void addItem(MyItem item, int xTile, int yTile){
+        int x = xTile;
+        int y = yTile;
+        item.setxTile(xTile);
+        item.setyTile(yTile);
+        try{
+            if(blockable[x][y] == false){
+                items.add(item);
+                blockable[x][y] = true;
+            }
+        }catch(ArrayIndexOutOfBoundsException e){
+            System.err.println("\n**ITEM OFF MAP: "+item.getClass().getSimpleName());
+            theContainer.exit();
+        }
+    }
+    
+    public void removeItem(MyItem item){
+        int x = item.getxTile();
+        int y = item.getyTile();
+        
+        items.remove(item);
+        blockable[x][y] = false;
+        System.out.println("ITEM REMOVED");
+    }
+    
+    public void drawItems(){
+        for(MyItem item : items){
+            item.getIcon().draw(item.getxTile()*SIZE, item.getyTile()*SIZE);
+        }
+    }
+    
+    public void addCharacter(Character character, int xTile, int yTile){
+        character.setXpos(xTile*SIZE);
+        character.setYpos(yTile*SIZE);
+        if(blockable[xTile][yTile] == false){
+            characters.add(character);
+        }
+    }
+    
+    public void removeCharacter(Character character){
+        int xTile = (int) (character.getXpos()/SIZE);
+        int yTile = (int) (character.getYpos()/SIZE);
+        characters.remove(character);
+        blockable[xTile][yTile] = false;
+    }
+    
+    public void checkLOS(int delta){
+        int userXTile = (int) (user.getXpos()/SIZE);
+        int userYTile = (int) (user.getYpos()/SIZE);
+        int sightRange = 5;
+        
+        for(Character character : characters){
+            
+            if(character != null){
+                int characterXTile = (int) (character.getXpos()/SIZE);
+                int characterYTile = (int) (character.getYpos()/SIZE);
+                //System.out.println("USER TILE "+userXTile+", "+userYTile);
+
+                if(character.getSprite() == character.getUp()){
+                    for(int y=characterYTile-1; y>characterYTile-sightRange && y>=0; y--){
+                        //System.out.println("Y "+y);
+                        if(blockable[characterXTile][y] == true){
+                            System.out.println("LOS BLOCKED");
+                            break;
+                        }
+                        if(userYTile == y && userXTile == characterXTile){
+                            System.out.println("USER IN LOS");
+                            character.Go();
+                            break;
+                        }
+                    }
+                }else if(character.getSprite() == character.getDown()){
+                    for(int y=characterYTile+1; y<characterYTile+sightRange && y<map.getHeight(); y++){
+                        //System.out.println("Y "+y);
+                        if(blockable[characterXTile][y] == true){
+                            System.out.println("LOS BLOCKED");
+                            break;
+                        }
+                        if(userYTile == y && userXTile == characterXTile){
+                            System.out.println("USER IN LOS");
+                            break;
+                        }
+                    }
+                }else if(character.getSprite() == character.getLeft()){
+                    for(int x=characterXTile-1; x>characterXTile-sightRange && x>=0; x--){
+                        //System.out.println("Y "+y);
+                        if(blockable[x][characterYTile] == true){
+                            System.out.println("LOS BLOCKED");
+                            break;
+                        }
+                        if(userYTile == characterYTile && userXTile == x){
+                            System.out.println("USER IN LOS");
+                            break;
+                        }
+                    }
+                }else if(character.getSprite() == character.getRight()){
+                    for(int x=characterXTile+1; x<characterXTile+sightRange && x<map.getWidth(); x++){
+                        //System.out.println("Y "+y);
+                        if(blockable[x][characterYTile] == true){
+                            System.out.println("LOS BLOCKED");
+                            break;
+                        }
+                        if(userYTile == characterYTile && userXTile == x){
+                            System.out.println("USER IN LOS");
+                            break;
+                        }
+                    }
+                }
+           }
+        }
+    }
+    
+    public void drawCharacters(){
+        for(Character character : characters){
+            character.getSprite().draw((int)character.getXpos(), (int)character.getYpos());
+        }
+       
+    }
+    
+    public void loadGame(){
+        System.out.println("LOAD GAME");
+        try {
+            filehandler.readUserData();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(RPG.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(RPG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void saveGame(){
+        System.out.println("SAVE GAME");
+        try {
+            filehandler.writeUserData();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(RPG.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(RPG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void resetGame(){
+        System.out.println("RESET GAME");
+        try {
+            filehandler.resetUserData();
+        } catch (IOException ex) {
+            Logger.getLogger(RPG.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+}

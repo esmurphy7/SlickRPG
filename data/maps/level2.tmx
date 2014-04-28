@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="mountain_landscape" tilewidth="32" tileheight="32">
+  <image source="../tilesets/mountain_landscape.png" width="512" height="512"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="20" height="20">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC63USw7CMAwE0EjACfgcgAQuUOAAfLql4tMtqMBNODgTYUtWpG48XTxlN3VHcWIIIUKCFazh7NRIlubNYQcPB82rxAa2Ml9D2MMBjnCS+Z6EC1zhBneoyf46eMEbPtCS/dnsIWg+05nl7aqvvxGMzTmR73j7m8LMnPlOL4j+dDfKnfP215fn7U93ze6cZ4fL96Ccz9tfZbKSmY/tL8n/sv1Fk7UcuL9v+L9ZNdmfynn5zWqJ/n4SZ8FqQAYAAA==
+  </data>
+ </layer>
+ <objectgroup name="collision" width="20" height="20">
+  <object name="Cliff" x="0" y="0" width="160" height="192">
+   <properties>
+    <property name="blockable" value="true"/>
+   </properties>
+  </object>
+  <object name="Cliff" x="0" y="288" width="160" height="32">
+   <properties>
+    <property name="blockable" value="true"/>
+   </properties>
+  </object>
+  <object name="Cliff" x="0" y="320" width="192" height="320">
+   <properties>
+    <property name="blockable" value="true"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

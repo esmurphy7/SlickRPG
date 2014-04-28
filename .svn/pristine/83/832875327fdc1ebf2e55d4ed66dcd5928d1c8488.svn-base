@@ -1,0 +1,21 @@
+
+package EntitySystem;
+
+public class ItemComponent extends InteractableComponent{
+
+    public ItemComponent(Entity e){
+        setEntity(e);
+    }
+    
+    @Override
+    public void Interact(Entity source) {
+       System.out.println("IM AN ITEM HERE ARE MY STATS");
+       if(source.hasComponent(ItemBearerComponent.class)){
+           ItemBearerComponent inventory = source.getComponent(ItemBearerComponent.class);
+           if(getEntity().hasComponent(ItemComponent.class)){
+            inventory.Aquire(getEntity());
+           }
+       }
+    }
+
+}

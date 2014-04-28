@@ -1,0 +1,59 @@
+
+package Interface;
+
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class InventoryTab extends Tab {
+
+    private ArrayList<Image> options;
+    
+    public InventoryTab() throws SlickException{
+        this.setSpritesheet(new SpriteSheet(new Image("data/battlescenes/inventorytab.png"),79,134,0));
+        this.setCurrentImage(getSpritesheet().getSubImage(0, 0));
+        this.setCurrentId(0);
+    }
+    
+    @Override
+    public Tab Select() {
+        System.out.println("ITEM SELECTED");
+        return null;
+    }
+
+    @Override
+    public Tab Deselect() {
+        try {
+            return new ActionTab();
+        } catch (SlickException ex) {
+            Logger.getLogger(InventoryTab.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void MoveUp() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void MoveDown() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void MoveLeft() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void MoveRight() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    
+    
+}

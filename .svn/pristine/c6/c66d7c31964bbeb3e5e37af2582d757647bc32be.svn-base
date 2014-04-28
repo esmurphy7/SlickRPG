@@ -1,0 +1,37 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Interface;
+
+
+import Interface.View.MainMenuUI;
+import RPG.RPG;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import org.newdawn.slick.Input;
+import java.awt.event.MouseListener;
+
+/**
+ *
+ * @author Evan
+ */
+public class MainMenuController implements ActionListener{
+    
+    private MainMenuUI theView;
+    private RPG theGame;
+    
+    public MainMenuController(MainMenuUI view, RPG theGame){
+        this.theView = view;
+        this.theGame = theGame;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+}

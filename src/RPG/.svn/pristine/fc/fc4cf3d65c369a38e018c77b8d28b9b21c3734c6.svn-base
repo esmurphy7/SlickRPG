@@ -1,0 +1,353 @@
+
+package RPG;
+
+import EntitySystem.*;
+import FactorySystem.*;
+import java.util.ArrayList;
+import java.util.logging.Logger;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.geom.Rectangle;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.tiled.TiledMap;
+
+public class Level1 extends BasicGameState{
+
+    private TiledMap map;
+    private static final int SIZE = 32;
+    private Input input;
+    private StateBasedGame game;
+    private int ID;
+    private ArrayList<Entity> entities;
+    
+    public Level1(int id){
+        ID=id;
+    }
+
+    @Override
+    public int getID() {
+        return ID;
+    }
+
+    @Override
+    public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+        input=gc.getInput();
+        game=sbg;
+        entities=new ArrayList();
+        map = new TiledMap("data/maps/level1.tmx");
+        initCharacters();
+        detectTerrain();
+    }
+
+    public void initCharacters(){
+        try {
+            Entity user = new UserFactory(200,200).createEntity();
+            Entity guard = new GuardFactory(300,300).createEntity();
+            Entity shortsword = new ShortSwordFactory(300,360).createEntity();
+            entities.add(user);
+            entities.add(guard);
+            entities.add(shortsword);
+        } catch (SlickException ex) {
+            Logger.getLogger(Level1.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+    }
+    
+    @Override
+    public void render(GameContainer gc, StateBasedGame sbg, Graphics grphcs) throws SlickException {
+        map.render(0, 0);
+        
+        for(Entity entity : entities){
+            checkLOS(entity, grphcs);
+            if(entity.hasComponents(VisibleComponent.class) && entity.hasComponents(PhysicalComponent.class)){
+                VisibleComponent viscomp = entity.getComponent(VisibleComponent.class);
+                PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
+                viscomp.getSprite().draw(physcomp.getXpos(), physcomp.getYpos());
+            }
+            if(entity.hasComponents(PhysicalComponent.class)){
+                PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
+                float x = physcomp.getBoundingbox().getX();
+                float y = physcomp.getBoundingbox().getY();
+                float w = physcomp.getBoundingbox().getWidth();
+                float h = physcomp.getBoundingbox().getHeight();
+                grphcs.drawRect(x, y, w, h);
+            }                
+        }
+    }
+
+    @Override
+    public void update(GameContainer gc, StateBasedGame sbg, int delta) throws SlickException {
+        updateInput(input, delta);
+    }
+    
+        public void updateInput(Input input, int delta){ 
+        for(Entity entity : entities){
+            if(entity.hasComponents(InputComponent.class)){
+                
+                
+                if(entity.hasComponents(VisibleComponent.class) && entity.hasComponents(PhysicalComponent.class)){
+                    VisibleComponent viscomp = entity.getComponent(VisibleComponent.class);
+                    PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
+                    float fdelta = delta*0.1f;
+                    
+                    if(input.isKeyDown(Input.KEY_UP)){
+                            viscomp.setSprite(viscomp.getUp());
+                            physcomp.getBoundingbox().setY(physcomp.getYpos() - fdelta);
+                            if(IntersectsBlockable(entity) || physcomp.getBoundingbox().getY() < 0){
+                                physcomp.getBoundingbox().setY(physcomp.getBoundingbox().getY() + fdelta);
+                            }else{
+                                viscomp.getSprite().update(delta);
+                                physcomp.setYpos(physcomp.getYpos() - fdelta);
+                            }
+
+                    }else if(input.isKeyDown(Input.KEY_DOWN)){
+                        viscomp.setSprite(viscomp.getDown());
+                        physcomp.getBoundingbox().setY(physcomp.getBoundingbox().getY() + fdelta);
+                        if(IntersectsBlockable(entity) || physcomp.getYpos() > (map.getHeight()-1)*SIZE){
+                            physcomp.getBoundingbox().setY(physcomp.getBoundingbox().getY() - fdelta);
+                        }else{
+                            viscomp.getSprite().update(delta);
+                            physcomp.setYpos(physcomp.getYpos() + fdelta);
+                        }
+
+                    }else if(input.isKeyDown(Input.KEY_LEFT)){
+                        viscomp.setSprite(viscomp.getLeft());
+                        physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() - fdelta);
+                        if(IntersectsBlockable(entity) || physcomp.getXpos() < 0){
+                            physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() + fdelta);
+                        }else{
+                                viscomp.getSprite().update(delta);
+                                physcomp.setXpos(physcomp.getXpos() - fdelta);
+                        }
+
+                    }else if(input.isKeyDown(Input.KEY_RIGHT)){
+                        viscomp.setSprite(viscomp.getRight());
+                        physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() + fdelta);
+                        if(IntersectsBlockable(entity) || physcomp.getXpos() > (map.getWidth()-1)*SIZE){
+                            physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() - fdelta);
+                        }else{
+                            viscomp.getSprite().update(delta);
+                            physcomp.setXpos(physcomp.getXpos() + fdelta);
+                        }
+                    }else if(input.isKeyDown(Input.KEY_Z)){
+                        ArrayList<Entity> touching = getTouching(entity);
+                        Entity interactable = null;
+                        for(Entity ent : touching){
+                            PhysicalComponent entphyscomp = ent.getComponent(PhysicalComponent.class);
+                            if(viscomp.getSprite() == viscomp.getUp()){
+                                System.out.println("FACING UP");
+                                if(entphyscomp.getYpos() < physcomp.getYpos()){
+                                    interactable = ent;
+                                }
+                            }else if(viscomp.getSprite() == viscomp.getDown()){
+                                System.out.println("FACING DOWN");
+                                if(entphyscomp.getYpos() > physcomp.getYpos()){
+                                    System.out.println("INTERACTABLE SET");
+                                    interactable = ent;
+                                }
+                            }else if(viscomp.getSprite() == viscomp.getLeft()){
+                                System.out.println("FACING LEFT");
+                                if(entphyscomp.getXpos() < physcomp.getXpos()){
+                                    interactable = ent;
+                                }
+                            }else if(viscomp.getSprite() == viscomp.getRight()){
+                                System.out.println("FACING RIGHT");
+                                if(entphyscomp.getXpos() > physcomp.getXpos()){
+                                    interactable = ent;
+                                }
+                            }
+                            if(interactable != null){
+                                if(interactable.hasComponents(ItemComponent.class)){
+                                    ItemComponent intercomp = interactable.getComponent(ItemComponent.class);
+                                    System.out.println("INTERACT");
+                                    intercomp.Interact(entity);
+                                }
+                            }    
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * @param entity The source entity to be checked
+     * @return True if source entity intersects any other entity
+     */
+    public boolean IntersectsBlockable(Entity entity){
+        for(Entity ent : entities){
+            if(ent.hasComponents(PhysicalComponent.class)){
+                PhysicalComponent sourcephyscomp = entity.getComponent(PhysicalComponent.class);
+                PhysicalComponent destphyscomp = ent.getComponent(PhysicalComponent.class);
+                if(ent != entity){
+                    if(sourcephyscomp.getBoundingbox().intersects(destphyscomp.getBoundingbox())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    public ArrayList<Entity> getIntersecting(Entity entity){
+        ArrayList<Entity> intersecting = new ArrayList();
+        for(Entity ent : entities){
+            if(ent.hasComponents(PhysicalComponent.class)){
+                PhysicalComponent sourcephyscomp = entity.getComponent(PhysicalComponent.class);
+                PhysicalComponent destphyscomp = ent.getComponent(PhysicalComponent.class);
+                if(ent != entity){
+                    if(sourcephyscomp.getBoundingbox().intersects(destphyscomp.getBoundingbox())){
+                        intersecting.add(ent);
+                    }
+                }
+            }
+        }
+        return intersecting;
+    }
+        
+    public ArrayList<Entity> getTouching(Entity entity){
+        ArrayList<Entity> touching = new ArrayList();
+        for(Entity ent : entities){
+            if(ent.hasComponents(PhysicalComponent.class)){
+                PhysicalComponent sourcephyscomp = entity.getComponent(PhysicalComponent.class);
+                PhysicalComponent destphyscomp = ent.getComponent(PhysicalComponent.class);
+                if(ent != entity){
+                    sourcephyscomp.getBoundingbox().grow(1, 1);
+                    if(sourcephyscomp.getBoundingbox().intersects(destphyscomp.getBoundingbox())){
+                        System.out.println("FOUND TOUCHING");
+                        touching.add(ent);
+                    }
+                    sourcephyscomp.getBoundingbox().grow(-1, -1);
+                }
+            }
+        }
+        return touching;
+    }
+    
+    public Entity getClosest(Entity source, ArrayList<Entity> targets){
+        PhysicalComponent physcomp = source.getComponent(PhysicalComponent.class);
+        float sourcex = physcomp.getBoundingbox().getCenterX();
+        float sourcey = physcomp.getBoundingbox().getCenterY();
+        float mindistance = 1000000;
+        Entity closest = null;
+        
+        for(Entity target : targets){
+            PhysicalComponent pc = target.getComponent(PhysicalComponent.class);
+            float targetx = pc.getBoundingbox().getCenterX();
+            float targety = pc.getBoundingbox().getCenterY();
+            float vertdist = sourcey-targety;
+            float horizdist = sourcex-targetx;
+            double hypotenuse = Math.sqrt(Math.pow((double)vertdist,2) + Math.pow((double)horizdist,2));
+            if(hypotenuse < mindistance){
+                mindistance = (float)hypotenuse;
+                closest = target;
+            }
+        }
+        
+        if(closest != null){
+            return closest;
+        }
+        return source;
+    }
+    
+    /*
+     * For each object layer in the map do
+     *      For each object in the layer do
+     *          if the object is blockable, create a terrain entity with corresponding bounding box and add it to entities
+     */
+    public void detectTerrain(){
+        for(int collisionLayerID=0; collisionLayerID<map.getObjectGroupCount(); collisionLayerID++){
+            for(int objectID=0; objectID<map.getObjectCount(collisionLayerID); objectID++){
+                if(map.getObjectProperty(collisionLayerID, objectID, "blockable", "false").equals("true")){
+                    int boxX = map.getObjectX(collisionLayerID, objectID);
+                    int boxY = map.getObjectY(collisionLayerID, objectID);
+                    int boxW = map.getObjectWidth(collisionLayerID, objectID);
+                    int boxH = map.getObjectHeight(collisionLayerID, objectID);
+                    Rectangle box = new Rectangle(boxX, boxY, boxW, boxH);
+
+                    TerrainFactory terrainFactory = new TerrainFactory(box);
+                    Entity terrainEntity = terrainFactory.createEntity();
+                    entities.add(terrainEntity);
+                }
+            }
+        }
+    }
+    
+    public void checkLOS(Entity user, Graphics g){
+        ArrayList<Entity> inLOS = new ArrayList(); //hold entities in the line of sight
+        ArrayList<Entity> intersecting = new ArrayList(); //hold entities that intersect the line of sight box
+        for(Entity entity : entities){
+            if(entity.hasComponents(EnemyComponent.class, VisibleComponent.class, PhysicalComponent.class)){
+                /*Get the entity's components*/
+                VisibleComponent viscomp = entity.getComponent(VisibleComponent.class);
+                PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
+                EnemyComponent encomp = entity.getComponent(EnemyComponent.class);
+                float range = encomp.getSightrange();
+                Rectangle LOSbox = null; //line of sight rectangle
+                boolean verticalLOS = true; //is the line of sight vertical or horizontal
+                float vertadjust=0; //vertical adjustment for line of sight box
+                float horizadjust=0; //horizontal adjustment for line of sight box
+                float width=physcomp.getBoundingbox().getWidth();
+                float height=physcomp.getBoundingbox().getHeight();
+                if(viscomp.getSprite() == viscomp.getUp()){
+                    vertadjust = -range-1;
+                    verticalLOS = true;
+                    height = range;                    
+                }else if(viscomp.getSprite() == viscomp.getDown()){
+                    vertadjust = physcomp.getBoundingbox().getHeight()+1;
+                    verticalLOS = true;
+                    height = range;
+                }else if(viscomp.getSprite() == viscomp.getLeft()){
+                    horizadjust = -range-1;
+                    verticalLOS = false;
+                    width = range;
+                }else if(viscomp.getSprite() == viscomp.getRight()){
+                    horizadjust = physcomp.getBoundingbox().getWidth()+1;
+                    verticalLOS = false;
+                    width = range;
+                }
+                
+                LOSbox = new Rectangle(physcomp.getBoundingbox().getX()+horizadjust, physcomp.getBoundingbox().getY()+vertadjust, width, height);
+                Entity LOSentity = new Entity(new PhysicalComponent(LOSbox), new VisibleComponent()); //temporary entity representing line of sight
+                intersecting = getIntersecting(LOSentity); //get all entities that intersect the line of sight entity
+                float x = LOSbox.getX();
+                float y = LOSbox.getY();
+                float w = LOSbox.getWidth();
+                float h = LOSbox.getHeight();
+                g.drawRect(x,y,w,h); //draw the line of sight box
+
+                float boxcenterx = LOSbox.getCenterX();
+                float boxcentery = LOSbox.getCenterY();
+                float interval = range/5;
+                for(Entity ent : intersecting){
+                    PhysicalComponent pc = ent.getComponent(PhysicalComponent.class);
+                    float centerx = pc.getBoundingbox().getCenterX();
+                    float centery = pc.getBoundingbox().getCenterY();
+                    if(verticalLOS){
+                        if(centerx >= boxcenterx-interval/2 && centerx <= boxcenterx+interval/2){
+                            inLOS.add(ent);
+                            //System.out.println("IN VERTICAL LOS");
+                            Entity closest = getClosest(entity, intersecting);
+                            if(closest != entity){
+                                if(closest.hasComponents(InputComponent.class)){
+                                    System.out.println("USER IN LOS");
+                                }
+                            }
+                        }
+                    }else if(centery >= boxcentery-interval/2 && centery <= boxcentery+interval/2){
+                        inLOS.add(ent);
+                        //System.out.println("IN HORIZONTAL LOS");
+                        Entity closest = getClosest(entity, intersecting);
+                        if(closest != entity){
+                            if(closest.hasComponents(InputComponent.class)){
+                                System.out.println("USER IN LOS");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,69 @@
+
+package Interface;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+class MyKeyListener implements KeyListener {
+
+    private JFrame frame;
+    private JPanel panel;
+    
+    public MyKeyListener(JFrame frame){
+        this.frame=frame;
+    }
+    public MyKeyListener(JPanel panel){
+        this.panel=panel;
+    }
+    
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.out.println("EVENT KEYCODE: "+e.getKeyCode());
+        if(e.getKeyCode() == 0){
+            System.out.println("ESCAPE PRESSED");
+            getFrame().setVisible(false);
+            getFrame().remove(getFrame());
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        
+    }
+    
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
+
+    /**
+     * @return the frame
+     */
+    public JFrame getFrame() {
+        return frame;
+    }
+
+    /**
+     * @param frame the frame to set
+     */
+    public void setFrame(JFrame frame) {
+        this.frame = frame;
+    }
+
+    /**
+     * @return the panel
+     */
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    /**
+     * @param panel the panel to set
+     */
+    public void setPanel(JPanel panel) {
+        this.panel = panel;
+    }
+}

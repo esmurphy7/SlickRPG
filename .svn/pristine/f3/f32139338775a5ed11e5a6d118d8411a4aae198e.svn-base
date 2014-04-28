@@ -1,0 +1,98 @@
+
+package Interface;
+
+import RPG.ForestScene;
+import java.util.ArrayList;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class ActionTab extends Tab{
+
+    /* Ids correspond to 0, 1, 2, 3, 4*/
+    private Image none, attack, cast, item, wait;
+    
+    public ActionTab() throws SlickException{
+        this.setSpritesheet(new SpriteSheet(new Image("data/battlescenes/actiontabsheet.png"),79, 134));
+        
+        none = this.getSpritesheet().getSubImage(0, 0);
+        attack = this.getSpritesheet().getSubImage(1, 0);
+        cast = this.getSpritesheet().getSubImage(2, 0);
+        item = this.getSpritesheet().getSubImage(3, 0);
+        wait = this.getSpritesheet().getSubImage(4, 0);
+        
+        this.setCurrentImage(attack);
+        this.setCurrentId(1);
+    }
+    
+    @Override
+    public void Select() {
+        if(getCurrentId() == 1){
+            System.out.println("ATTACK SELECTED");
+        }else if(getCurrentId() == 2){
+            System.out.println("CAST SELECTED");
+        }else if(getCurrentId() == 3){
+            System.out.println("ITEM SELECTED");
+        }else if(getCurrentId() == 4){
+            System.out.println("WAIT SELECTED");
+        }
+    }
+
+    @Override
+    public void Deselect() {
+        
+    }
+
+    @Override
+    public void MoveUp() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        if(getCurrentId() == 1){
+            current = wait;
+            id = 4;
+        }else if(getCurrentId() == 2){
+            current = attack;
+            id = 1;
+        }else if(getCurrentId() == 3){
+            current = cast;
+            id = 2;
+        }else if(getCurrentId() == 4){
+            current = item;
+            id = 3;
+        }
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+    @Override
+    public void MoveDown() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        if(getCurrentId() == 1){
+            current = cast;
+            id = 2;
+        }else if(getCurrentId() == 2){
+            current = item;
+            id = 3;
+        }else if(getCurrentId() == 3){
+            current = wait;
+            id = 4;
+        }else if(getCurrentId() == 4){
+            current = attack;
+            id = 1;
+        }
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+    @Override
+    public void MoveLeft() {
+        
+    }
+
+    @Override
+    public void MoveRight() {
+        
+    }
+
+}

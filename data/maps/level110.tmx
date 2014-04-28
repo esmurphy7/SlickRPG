@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="mountain_landscape" tilewidth="32" tileheight="32">
+  <image source="../tilesets/mountain_landscape.png" width="512" height="512"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="10" height="10">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAACwtgYGDwx4IDgDgBjR8PxTA+Ln3xaHxkeXQz4rHIxWOxOwBNHt3eeUhuRjYXXf06JHUJaOYmILH3EfALNjlc/kKXQ8fIcgCeM8gbkAEAAA==
+  </data>
+ </layer>
+ <objectgroup name="collision" width="10" height="10"/>
+</map>

@@ -1,0 +1,121 @@
+
+package Interface;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class EnemyTab extends Tab{
+
+    /*Ids correspond to 0, 1, 2, 3*/
+    private Image top, left, right, bottom;
+    
+    public EnemyTab() throws SlickException{
+        this.setSpritesheet(new SpriteSheet(new Image("data/battlescenes/enemytabsheet.png"),240,128,2));
+        top=this.getSpritesheet().getSubImage(0, 0);
+        left=this.getSpritesheet().getSubImage(1, 0);
+        right=this.getSpritesheet().getSubImage(2, 0);
+        bottom=this.getSpritesheet().getSubImage(3, 0);
+        
+        this.setCurrentImage(top);
+        this.setCurrentId(0);
+        
+    }
+    
+    @Override
+    public Tab Select() {
+        System.out.println("ENEMY SELECTED");
+        return null;
+    }
+
+    @Override
+    public Tab Deselect() {
+        try {
+            return new ActionTab();
+        } catch (SlickException ex) {
+            Logger.getLogger(EnemyTab.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void MoveUp() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        switch(id){
+            case 0:
+                id = 3;
+                current = bottom;
+                break;
+            case 1:
+                id = 0;
+                current = top;
+                break;
+            case 2:
+                id = 0;
+                current = top;
+                break;
+            case 3:
+                id = 2;
+                current = right;
+        }
+        
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+    @Override
+    public void MoveDown() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        switch(id){
+            case 0:
+                id = 1;
+                current = left;
+                break;
+            case 1:
+                id = 3;
+                current = bottom;
+                break;
+            case 2:
+                id = 3;
+                current = bottom;
+                break;
+            case 3:
+                id = 0;
+                current = top;
+        }
+        
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+    @Override
+    public void MoveLeft() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        if(id == 2){
+            id = 1;
+            current = left;
+        }
+        
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+    @Override
+    public void MoveRight() {
+        Image current = getCurrentImage();
+        int id = getCurrentId();
+        if(id == 1){
+            id = 2;
+            current = right;
+        }
+        
+        this.setCurrentImage(current);
+        this.setCurrentId(id);
+    }
+
+}

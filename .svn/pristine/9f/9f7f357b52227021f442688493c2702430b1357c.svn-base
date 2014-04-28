@@ -1,0 +1,55 @@
+
+package Interface;
+
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class SpellTab extends Tab{
+
+    private ArrayList<Image> options;
+    
+    public SpellTab() throws SlickException{
+        this.setSpritesheet(new SpriteSheet(new Image("data/battlescenes/spelltab.png"), 79, 134, 0));
+        this.setCurrentImage(getSpritesheet().getSubImage(0, 0));
+        this.setCurrentId(0);
+        /*initialize "options" as they correspond to the current character's spellset*/
+    }
+    
+    @Override
+    public Tab Select() {
+        System.out.println("SPELL SELECTED");
+        return null;
+    }
+
+    @Override
+    public Tab Deselect() {
+        try {
+            return new ActionTab();
+        } catch (SlickException ex) {
+            Logger.getLogger(SpellTab.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    @Override
+    public void MoveUp() {
+        
+    }
+
+    @Override
+    public void MoveDown() {
+    }
+
+    @Override
+    public void MoveLeft() {
+    }
+
+    @Override
+    public void MoveRight() {
+    }
+
+}

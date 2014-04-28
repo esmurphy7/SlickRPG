@@ -1,0 +1,133 @@
+
+package RPG;
+
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class Character {
+
+    private int duration = 150;
+    private Animation sprite, up, down, left, right;
+    private float xpos = 32f, ypos = 32f;
+    private boolean moving = false;
+    private SpriteSheet spriteSheet;
+    
+    private int damage=1, str=5, intel=5, dex=5, hp=15, mp=10;
+    
+    public Character() throws SlickException{
+        
+    }
+    
+    public void Engage(Character target, int delta){
+        float fdelta = delta*0.1f;
+        if(sprite == up){
+            while(this.getYpos() > target.getYpos()){
+                this.getSprite().update(delta);
+                this.setYpos(this.getYpos() - fdelta);
+            }
+            System.out.println("START BATTLE TRANSITION");
+        }
+    }
+    
+    public void Go(){
+        this.moving = true;
+    }
+    public void Stop(){
+        this.moving = false;
+    }
+    public boolean isMoving(){
+        return this.moving;
+    }
+    public int getDuration() {
+        return duration;
+    }
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+    public Animation getSprite() {
+        return sprite;
+    }
+    public void setSprite(Animation sprite) {
+        this.sprite = sprite;
+    }
+    public Animation getUp() {
+        return up;
+    }
+    public void setUp(Animation up) {
+        this.up = up;
+    }
+    public Animation getDown() {
+        return down;
+    }
+    public void setDown(Animation down) {
+        this.down = down;
+    }
+    public Animation getLeft() {
+        return left;
+    }
+    public void setLeft(Animation left) {
+        this.left = left;
+    }
+    public Animation getRight() {
+        return right;
+    }
+    public void setRight(Animation right) {
+        this.right = right;
+    }
+    public float getXpos() {
+        return xpos;
+    }
+    public void setXpos(float xpos) {
+        this.xpos = xpos;
+    }
+    public float getYpos() {
+        return ypos;
+    }
+    public void setYpos(float ypos) {
+        this.ypos = ypos;
+    }
+    public SpriteSheet getSpriteSheet() {
+        return spriteSheet;
+    }
+    public void setSpriteSheet(SpriteSheet sheet) {
+        this.spriteSheet = sheet;
+    }
+    public int getDamage() {
+        return damage;
+    }
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+    public int getStr() {
+        return str;
+    }
+    public void setStr(int str) {
+        this.str = str;
+    }
+    public int getIntel() {
+        return intel;
+    }
+    public void setIntel(int intel) {
+        this.intel = intel;
+    }
+    public int getDex() {
+        return dex;
+    }
+    public void setDex(int dex) {
+        this.dex = dex;
+    }
+    public int getHp() {
+        return hp;
+    }
+    public void setHp(int hp) {
+        this.hp = hp;
+    }
+    public int getMp() {
+        return mp;
+    }
+    public void setMp(int mp) {
+        this.mp = mp;
+    }
+        
+}

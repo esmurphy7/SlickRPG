@@ -1,0 +1,23 @@
+
+package Interface.Model;
+
+import RPG.Items.MyItem;
+import RPG.RPG;
+
+public class Model {
+
+    private RPG theGame;
+    private MyItem[] equipment;
+    
+    public Model(RPG theGame){
+        this.theGame=theGame;
+        init();
+    }
+    
+    private void init(){
+        this.equipment = theGame.getUser().getEquipped();
+    }
+    
+    
+    
+}

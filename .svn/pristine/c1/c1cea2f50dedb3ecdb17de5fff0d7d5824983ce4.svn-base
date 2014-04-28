@@ -1,0 +1,75 @@
+
+package Interface;
+
+import RPG.ForestScene;
+import java.util.ArrayList;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.Input;
+import org.newdawn.slick.SpriteSheet;
+
+public abstract class Tab {
+
+    private ForestScene battlescene;
+    
+    private SpriteSheet spritesheet;
+    private ArrayList<Image> options;
+    private Image currentimage;
+    private int currentId;
+    private Input input;
+    
+    public abstract Tab Select();
+    public abstract Tab Deselect();
+    public abstract void MoveUp();
+    public abstract void MoveDown();
+    public abstract void MoveLeft();
+    public abstract void MoveRight();
+
+    public SpriteSheet getSpritesheet() {
+        return spritesheet;
+    }
+
+    public void setSpritesheet(SpriteSheet spritesheet) {
+        this.spritesheet = spritesheet;
+    }
+
+    public ArrayList<Image> getOptions() {
+        return options;
+    }
+
+    public void setOptions(ArrayList<Image> options) {
+        this.options = options;
+    }
+
+    public Image getCurrentImage() {
+        return currentimage;
+    }
+
+    public void setCurrentImage(Image option) {
+        this.currentimage = option;
+    }
+
+    public Input getInput() {
+        return input;
+    }
+
+    public void setInput(Input input) {
+        this.input = input;
+    }
+
+    public ForestScene getBattlescene() {
+        return battlescene;
+    }
+
+    public void setBattlescene(ForestScene battlescene) {
+        this.battlescene = battlescene;
+    }
+
+    public int getCurrentId() {
+        return currentId;
+    }
+
+    public void setCurrentId(int currentId) {
+        this.currentId = currentId;
+    }
+    
+}

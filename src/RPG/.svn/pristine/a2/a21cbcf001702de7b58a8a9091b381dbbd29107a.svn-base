@@ -1,0 +1,25 @@
+
+package RPG;
+
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+
+public class Guard extends Character{
+
+
+    public Guard() throws SlickException{
+        setSpriteSheet(new SpriteSheet(new Image("data/images/guardsheet.png"), 32, 32, 6));
+        SpriteSheet guardsheet = getSpriteSheet();
+        int duration = getDuration();
+        
+        setUp(new Animation(guardsheet, 0, 1, 2, 1, true, duration, false));
+        setDown(new Animation(guardsheet, 0, 0, 2, 0, true, duration, false));
+        setLeft(new Animation(guardsheet, 0, 2, 2, 2, true, duration, false));
+        setRight(new Animation(guardsheet, 0, 3, 2, 3, true, duration, false));
+        setSprite(getDown());
+    }
+    
+    
+}
