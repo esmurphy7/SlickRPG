@@ -1,36 +1,40 @@
 
 package Interface;
 
+import Managers.ResourceManager;
 import java.awt.Font;
+import java.io.InputStream;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.util.ResourceLoader;
 
 public class ActionPanelFactory implements PanelFactory{
 
-    private final UnicodeFont actionPanelFont;
+    private TrueTypeFont actionPanelFont;
 
     public ActionPanelFactory() {
-        this.actionPanelFont = new UnicodeFont(new Font("Dialog", Font.PLAIN, 12));
+        actionPanelFont = ResourceManager.getInstance().eightBitWonder;
     }
     
     @Override
     public Panel createPanel(GameContainer gc) throws SlickException{
-        Image optionBackground = new Image("data/interface/optionbackground.png");
-        Panel actionPanel = new Panel(gc.getWidth()-gc.getWidth()/3, 
+        Panel testPanel = new TestPanelFactory().createPanel(gc);
+        Panel actionPanel = new Panel(gc,
+                                      gc.getWidth()-gc.getWidth()/3, 
                                       gc.getHeight()/2, 
                                       gc.getHeight()/2, 
                                       gc.getWidth()/3,
                                       15,
-                                      new Option(optionBackground, this.actionPanelFont, "Attack"),
-                                      new Option(optionBackground, this.actionPanelFont, "Spell"),
-                                      new Option(optionBackground,this.actionPanelFont, "Item"),
-                                      new Option(optionBackground, this.actionPanelFont, "Wait"),
-                                      new Option(optionBackground, this.actionPanelFont, "Sample"),
-                                      new Option(optionBackground, this.actionPanelFont, "Sample"), 
-                                      new Option(optionBackground, this.actionPanelFont, "Sample")
-                                      //new Option(new Image("data/interface/sampleoption.png"))
+                                      new Option(actionPanelFont, testPanel,   "Attack"),
+                                      new Option(actionPanelFont, testPanel,  "Spell"),
+                                      new Option(actionPanelFont, testPanel, "Item"),
+                                      new Option(actionPanelFont, testPanel, "Wait"),
+                                      new Option(actionPanelFont, testPanel, "Sample"),
+                                      new Option(actionPanelFont, testPanel, "Sample"), 
+                                      new Option(actionPanelFont, testPanel,  "Sample")
                                       );
         return actionPanel;
     }

@@ -3,18 +3,25 @@ package RPG;
 
 import EntitySystem.*;
 import FactorySystem.*;
+import Interface.MainMenuPanelFactory;
+import Managers.ResourceManager;
+import java.awt.Font;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 import org.newdawn.slick.tiled.TiledMap;
+import org.newdawn.slick.util.ResourceLoader;
 
 public abstract class Level extends RPGState{
 
@@ -23,7 +30,7 @@ public abstract class Level extends RPGState{
     static final int SIZE = 32;
     static final float ZOOM_FACTOR = 1.5f;
     ArrayList<Entity> exits;
-    UnicodeFont levelFont;
+    //TrueTypeFont levelFont;
 
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
@@ -37,6 +44,7 @@ public abstract class Level extends RPGState{
     @Override
     public void abstractInit(GameContainer gc, StateBasedGame sbg) throws SlickException {
         System.out.println("INIT ABSTRACT LVL");
+        
         this.game = sbg;
         this.user = User.getUser();
         this.localEntities = new ArrayList();
@@ -44,7 +52,7 @@ public abstract class Level extends RPGState{
         this.input = gc.getInput();
         initEntities();
         
-        //Image startPanel = new Image("data/interface.png");
+        
         
     }
     
@@ -58,8 +66,12 @@ public abstract class Level extends RPGState{
     public void abstractRender(GameContainer gc, StateBasedGame sbg, Graphics grphcs) {
         grphcs.scale(ZOOM_FACTOR, ZOOM_FACTOR);
         map.render(0,0);
+        if(currentPanel != null){
+            currentPanel.render(gc.getWidth()/2 - currentPanel.getWidth()/2,  gc.getHeight()/8);
+        }
         
-        for(Entity entity : localEntities){
+        /*Draw rectangles around physical entities*/
+        /*for(Entity entity : localEntities){
             checkLOS(entity, grphcs);
             if(entity.hasComponents(VisibleComponent.class) && entity.hasComponents(PhysicalComponent.class)){
                 VisibleComponent viscomp = entity.getComponent(VisibleComponent.class);
@@ -74,7 +86,7 @@ public abstract class Level extends RPGState{
                 float h = physcomp.getBoundingbox().getHeight();
                 grphcs.drawRect(x, y, w, h);
             }                
-        }
+        }*/
     }
     
     public void updateInput(Input input, int delta){ 
@@ -160,7 +172,7 @@ public abstract class Level extends RPGState{
                             }    
                         }
                     } else if(input.isKeyDown(Input.KEY_ENTER)){
-                        System.out.println("ENTER PRESSED");
+                        currentPanel = ResourceManager.getInstance().mainMenuPanel;
                     }
                     Entity exit = getIntersectingExit(entity);
                     changeMap(exit); // If exit is null then map is not changed
@@ -397,6 +409,11 @@ public abstract class Level extends RPGState{
         }
         return null;
     }    
+    
+    @Override
+    public void enter(GameContainer gc, StateBasedGame sbg){
+        //currentPanel = ResourceManager.getInstance().mainMenuPanel;
+    }
     
     /*
      * Transitions the map to another map based on the exit that the user took

@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -19,17 +20,17 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.state.StateBasedGame;
+import org.newdawn.slick.util.ResourceLoader;
 
 public abstract class BattleScene extends RPGState{
-    /*The panel that is currently accepting input and thus should be updated and rendered*/
-    Panel currentPanel;
-    Panel testPanel;
     /*The static landscape image for the battle, drawn to top half of container*/
     Image background;
     /*The entity that is currently taking its turn*/
     Entity currentEntity;
+    //TrueTypeFont battleSceneFont;
     
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
@@ -41,6 +42,8 @@ public abstract class BattleScene extends RPGState{
     
     @Override
     public void abstractInit(GameContainer gc, StateBasedGame sbg) throws SlickException{
+        
+        
         game=sbg;
         input=gc.getInput();
         localEntities=new ArrayList();
@@ -48,7 +51,7 @@ public abstract class BattleScene extends RPGState{
         scaleBackgrounds(gc);
         
         currentPanel = new ActionPanelFactory().createPanel(gc);
-        testPanel = new TestPanelFactory().createPanel(gc);
+        //testPanel = new TestPanelFactory().createPanel(gc);
     }
     
     @Override
@@ -56,7 +59,7 @@ public abstract class BattleScene extends RPGState{
         currentPanel.update();
         
         if(input.isKeyPressed(Input.KEY_X)){
-            
+            currentPanel = currentPanel.Select();
         }else if(input.isKeyPressed(Input.KEY_Z)){
             
         }else if(input.isKeyPressed(Input.KEY_UP)){
@@ -73,20 +76,13 @@ public abstract class BattleScene extends RPGState{
     @Override
     public void abstractRender(GameContainer gc, StateBasedGame sbg, Graphics grphcs){
         background.draw(0, 0);
-        currentPanel.render();
-        testPanel.render();
+        currentPanel.render(0,0);
+        //testPanel.render(0,0);
     }
     
     @Override
     public void enter(GameContainer gc, StateBasedGame sbg){
-        String userxml = xstream.toXML(user);
-        try {
-            ObjectOutputStream outputstream = xstream.createObjectOutputStream(new BufferedWriter(new FileWriter("data/xml/user.xml")));
-            outputstream.writeObject(user);
-            outputstream.close();
-        } catch (IOException ex) {
-            Logger.getLogger(BattleScene.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //gc.setDefaultFont(battleSceneFont);
     }
     
     /*Scales the background and UIbackground images*/

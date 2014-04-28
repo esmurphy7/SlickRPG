@@ -2,11 +2,14 @@
 package Interface;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+
 
 /*
  * A panel that holds any number of options.
@@ -23,25 +26,52 @@ public class Panel extends UIComponent{
       Indices of "options" correspond to Ids*/
     private int currentOptionId;
     private int optionsAllowed;
-    private List<Option> options;
-    private List<Integer> visibleOptionIds;
+    private ArrayList<Option> options;
+    private ArrayList<Integer> visibleOptionIds;
     /*Points on the panel where options will be located (topleft corner) if they're to be visible*/
     private List<Point> displayPoints;
     private Selector selector;
     
-    /* The panel's image is scaled based on the height and width parameters
+    /* Constructor with series of options and without background image*/
+    public Panel(GameContainer gc, Option...opts) throws SlickException{
+        setContainer(gc);
+        options = new ArrayList(Arrays.asList(opts));
+        if(!options.isEmpty()){
+            visibleOptionIds = new ArrayList();
+            displayPoints = new ArrayList();
+            optionsAllowed = 0;
+            currentOptionId = 0;
+            selector = new Selector();
+        }
+    }
+    /* Constructor with ArrayList of options and without background image*/
+    public Panel(GameContainer gc, ArrayList<Option> opts) throws SlickException{
+        setContainer(gc);
+        options = opts;
+        if(!options.isEmpty()){
+            visibleOptionIds = new ArrayList();
+            displayPoints = new ArrayList();
+            optionsAllowed = 0;
+            currentOptionId = 0;
+            selector = new Selector();
+        }
+    }
+    
+    /* Constructor for more concrete Panel ideal for factories and builders
+     * The panel's image is scaled based on the height and width parameters
      * @param x: X position of panel on game container
      * @param y: Y position of panel on game container
      * @param h: height of the panel
      * @param w: width of panel
      * @param marg: padding for panel's options
      */
-    public Panel(int x, int y, int h, int w, int marg, Option...opts) throws SlickException{
+    public Panel(GameContainer gc, int x, int y, int h, int w, int marg, Option...opts) throws SlickException{
+        setContainer(gc);
         setX(x);
         setY(y);
         setHeight(h);
         setWidth(w);
-        MARGIN = marg;
+        setMargin(marg);
         setImage(new Image("data/interface/panel.png").getScaledCopy(w, h));
         options=new ArrayList();
         options.addAll(Arrays.asList(opts));
@@ -53,11 +83,33 @@ public class Panel extends UIComponent{
             selector = new Selector();
         }    
         
-        decideOptionHeight();
+        initPanel();
     }
     
-    public void Select(){
-        
+    public int getMargin(){
+        return MARGIN;
+    }
+    public void setMargin(int m){
+        MARGIN = m;
+    }
+    public ArrayList<Option> getOptions(){
+        return this.options;
+    }
+    public void setOptions(ArrayList<Option> opts){
+        this.options=opts;
+    }
+    public void addOption(Option opt){
+        this.options.add(opt);
+    }
+    public void removeOption(Option opt){
+        this.options.remove(opt);
+    }
+    public void removeOption(int index){
+        this.options.remove(index);
+    }
+    /*Relay select command to current option*/
+    public Panel Select(){
+        return options.get(currentOptionId).Select();
     }
     public void Deselect(){
         
@@ -115,13 +167,15 @@ public class Panel extends UIComponent{
         currentOptionId=id;
     }
 
-    public void decideOptionHeight(){
+    /* Defines the display points on the panel and initializes the visible options*/
+    public void initPanel(){
         int heightAvailable = getHeight()-2*MARGIN;
         int widthAvailable = getWidth()-2*MARGIN;
         int optionHeight = heightAvailable/options.size();
-                
+            
+        /* The panel is able to show all options at once, treat as a static menu*/
         if(optionHeight >= MIN_OPTION_HEIGHT && optionHeight <= MAX_OPTION_HEIGHT){
-            System.out.println("TREAT AS STATIC OPTION PANEL");
+            //System.out.println("TREAT AS STATIC OPTION PANEL");
             for(int i=0; i<options.size(); i++){                
                 options.get(i).setX(getX() + MARGIN);
                 options.get(i).setY(getY()+ MARGIN + i*optionHeight);
@@ -131,9 +185,16 @@ public class Panel extends UIComponent{
                 visibleOptionIds.add(i);
                 displayPoints.add(new Point(getX() + MARGIN, getY() + MARGIN + i*optionHeight));
             }
+        /* There are too many options for the panel to show at once, treat the panel as a scrolling menu*/
         }else if(optionHeight < MIN_OPTION_HEIGHT){
             optionHeight = DEFAULT_OPTION_HEIGHT;
-            System.out.println("TREAT AS SCROLLING OPTIONS PANEL");
+            for(int i=0; i<options.size(); i++){
+                options.get(i).setX(getX() + MARGIN);
+                options.get(i).setY(getY()+ MARGIN + i*optionHeight);
+                options.get(i).setHeight(optionHeight);
+                options.get(i).setWidth(widthAvailable);
+            }
+            //System.out.println("TREAT AS SCROLLING OPTIONS PANEL");
             int heightTally=0;
             //System.out.println("\nHEIGHT AVAILABLE: "+heightAvailable);
             //System.out.println("OPTIONS ALLOWED: "+optionsAllowed);
@@ -154,6 +215,7 @@ public class Panel extends UIComponent{
                 visibleOptionIds.add(i);
                 //System.out.println("visID SIZE: "+visableOptionIds.size()+"\ndisPoints SIZE: "+displayPoints.size());
             }
+        /* The panel is not big enough to show even a single option*/
         }else if(optionHeight > MAX_OPTION_HEIGHT){
             //System.out.println("TREAT AS INSUFFICIENT OPTION PANEL");
             optionHeight = DEFAULT_OPTION_HEIGHT;
@@ -167,39 +229,47 @@ public class Panel extends UIComponent{
                 displayPoints.add(new Point(getX() + MARGIN, getY() + MARGIN + i*optionHeight));
             }
         }
+        
+        for(Option opt : options){
+            opt.Scale();
+        }
+        
     }
 
     @Override
     public void update(){
-        /*for(Option option : options){
-            option.update();
-        }*/
+        
+        /*Update selector */
         if(currentOptionId <= visibleOptionIds.get(0)){ // currently at top or above visible options
-            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getImage().getWidth(), options.get(currentOptionId).getImage().getHeight()));
+            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getWidth(), options.get(currentOptionId).getHeight()));
             selector.setX((int)displayPoints.get(0).getX());
             selector.setY((int)displayPoints.get(0).getY());
         } else if(currentOptionId >= visibleOptionIds.get(visibleOptionIds.size()-1)){ // currently at bottom or below above visible options
-            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getImage().getWidth(), options.get(currentOptionId).getImage().getHeight()));
+            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getWidth(), options.get(currentOptionId).getHeight()));
             selector.setX((int)displayPoints.get(displayPoints.size()-1).getX());
             selector.setY(((int)displayPoints.get(displayPoints.size()-1).getY()));
         } else { // currently within visible options
-            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getImage().getWidth(), options.get(currentOptionId).getImage().getHeight()));
+            selector.setImage(selector.getImage().getScaledCopy(options.get(currentOptionId).getWidth(), options.get(currentOptionId).getHeight()));
             int visibleOptionId = visibleOptionIds.indexOf(currentOptionId);
             selector.setX((int)displayPoints.get(visibleOptionId).getX());
             selector.setY((int)displayPoints.get(visibleOptionId).getY());
         }
+        
+        /*Update Options*/
+        for(Option option : options){
+            option.update();
+        }
     }
     
     @Override
-    public void render(){
+    public void render(float x, float y){
         getImage().draw(getX(), getY());
-        /*for(int i=0; i<visibleOptionIds.size(); i++){
-            options.get(visibleOptionIds.get(i)).getImage()
-                    .draw((float)displayPoints.get(i).getX(), (float)displayPoints.get(i).getY());
-        }*/
+        
         for(int i=0; i<visibleOptionIds.size(); i++){
-            options.get(visibleOptionIds.get(i)).draw((float)displayPoints.get(i).getX(), (float)displayPoints.get(i).getY());
+            options.get(visibleOptionIds.get(i)).render((float)displayPoints.get(i).getX(), (float)displayPoints.get(i).getY());
         }
-        selector.render();
+        //selector.render(selector.getX(), selector.getY());
+        //selector.getImage().draw(1000,1000);
+        getContainer().getGraphics().drawRect(selector.getX(), selector.getY(), selector.getImage().getWidth(), selector.getImage().getHeight());
     }
 }

@@ -10,4 +10,14 @@ public class Selector extends UIComponent{
          setImage(new Image("data/interface/selector.png"));
     }
 
+    @Override
+    public void update() {
+        
+    }
+
+    @Override
+    public void render(float x, float y) {
+        getImage().draw(x, y);
+    }
+
 }

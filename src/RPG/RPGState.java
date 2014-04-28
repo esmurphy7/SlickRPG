@@ -2,6 +2,7 @@
 package RPG;
 
 import EntitySystem.Entity;
+import Interface.Panel;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -22,8 +23,7 @@ public abstract class RPGState extends BasicGameState{
     int stateID;
     ArrayList<Entity> localEntities;
     Entity user;
-    XStream xstream = new XStream();
-
+    Panel currentPanel;
     
     
     @Override

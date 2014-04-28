@@ -2,6 +2,8 @@
 package RPG;
 
 import EntitySystem.Entity;
+import Managers.ResourceManager;
+import java.awt.Font;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.newdawn.slick.AppGameContainer;
@@ -40,6 +42,7 @@ public class RPG extends StateBasedGame{
         }catch (SlickException e){
             e.printStackTrace();
         }
+        
     }
 
    @Override
@@ -47,6 +50,7 @@ public class RPG extends StateBasedGame{
        getState(LEVEL010).init(gc, this);
        getState(LEVEL110).init(gc, this);
        enterState(LEVEL010);
+       ResourceManager.getInstance().loadResources(gc);
     }
  
 }
