@@ -4,6 +4,7 @@ package RPG;
 import EntitySystem.Entity;
 import FactorySystem.GuardFactory;
 import FactorySystem.ShortSwordFactory;
+import Managers.ResourceManager;
 import java.util.logging.Logger;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
@@ -24,7 +25,7 @@ public class Level110 extends Level{
     
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException{
-        this.map = new TiledMap("data/maps/level110.tmx");
+        this.map = ResourceManager.getInstance().level110Map;
         user=null;
         super.abstractInit(gc, sbg);
         initCharacters();

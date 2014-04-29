@@ -1,6 +1,7 @@
 
 package Interface;
 
+import Managers.ResourceManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class Panel extends UIComponent{
     /*Points on the panel where options will be located (topleft corner) if they're to be visible*/
     private List<Point> displayPoints;
     private Selector selector;
+    private Panel parent;
     
     /* Constructor with series of options and without background image*/
     public Panel(GameContainer gc, Option...opts) throws SlickException{
@@ -72,7 +74,7 @@ public class Panel extends UIComponent{
         setHeight(h);
         setWidth(w);
         setMargin(marg);
-        setImage(new Image("data/interface/panel.png").getScaledCopy(w, h));
+        setImage(ResourceManager.getInstance().panelBackground.getScaledCopy(w, h));
         options=new ArrayList();
         options.addAll(Arrays.asList(opts));
         if(!options.isEmpty()){
@@ -107,12 +109,24 @@ public class Panel extends UIComponent{
     public void removeOption(int index){
         this.options.remove(index);
     }
+    public Panel getParent(){
+        return parent;
+    }
+    public void setParent(Panel parent){
+        this.parent=parent;
+    }
+    
+    
     /*Relay select command to current option*/
     public Panel Select(){
-        return options.get(currentOptionId).Select();
+        if(options.get(currentOptionId).getDestination() != null){
+            return options.get(currentOptionId).getDestination();
+        } else {
+            return this;
+        }
     }
-    public void Deselect(){
-        
+    public Panel Deselect(){
+        return parent;
     }
     
     public void MoveUp(){

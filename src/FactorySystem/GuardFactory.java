@@ -3,6 +3,7 @@ package FactorySystem;
 
 import EntitySystem.Entity;
 import EntitySystem.*;
+import Managers.ResourceManager;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -19,12 +20,12 @@ public class GuardFactory implements EntityFactory{
     public GuardFactory(float x, float y) throws SlickException{
         xpos=x;
         ypos=y;
-        spritesheet = new SpriteSheet(new Image("data/images/guardsheet.png"), 32,32,6,0);
+        spritesheet = ResourceManager.getInstance().guardSheet;
         int duration = 150;
-        up=new Animation(getSpritesheet(), 0, 1, 2, 1, true, duration, false);
-        down=new Animation(getSpritesheet(), 0, 0, 2, 0, true, duration, false);
-        left=new Animation(getSpritesheet(), 0, 2, 2, 2, true, duration, false);
-        right=new Animation(getSpritesheet(), 0, 3, 2, 3, true, duration, false);
+        up=new Animation(spritesheet, 0, 1, 2, 1, true, duration, false);
+        down=new Animation(spritesheet, 0, 0, 2, 0, true, duration, false);
+        left=new Animation(spritesheet, 0, 2, 2, 2, true, duration, false);
+        right=new Animation(spritesheet, 0, 3, 2, 3, true, duration, false);
         sprite=down;
     }
     

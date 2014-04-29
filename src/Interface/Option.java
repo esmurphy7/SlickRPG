@@ -16,28 +16,36 @@ import org.newdawn.slick.util.ResourceLoader;
  */
 public class Option extends UIComponent{
 
-    private UIComponent result;
+    private Panel destination;
     private String name;
     private int margin = 2;
     
     /*Constructor to test with dead end options*/
     public Option(TrueTypeFont font){
         setFont(font);
+        setDestination(null);
         name="DEAD END";
     }
     /*Constructor to give text-only options*/
-    public Option(TrueTypeFont font, UIComponent child, String name){
+    public Option(TrueTypeFont font, Panel destination, String name){
         setFont(font);
-        setChild(child);
+        setDestination(destination);
         this.name = name;
     }
     
-    public Option(TrueTypeFont font, UIComponent child, Image img, String name){
+    public Option(TrueTypeFont font, Panel destination, Image img, String name){
         setFont(font);
-        setChild(child);
+        setDestination(destination);
         setImage(img);
         this.name=name;
         
+    }
+    
+    public Panel getDestination() {
+        return destination;
+    }
+    public void setDestination(Panel Destination) {
+        this.destination = Destination;
     }
     
     @Override
@@ -53,17 +61,8 @@ public class Option extends UIComponent{
         }
         
     }
+
     
-    /* Called when the panel containing this option invokes Select()
-     @return: The panel that the focus will be passed to*/
-    public Panel Select(){
-        if(getChild() instanceof Panel){
-            return (Panel)getChild();
-        }else{
-            Log.error("Option Attempted to select non-panel child");
-            return null;
-        }
-    }
     /*Called when this option's Panel is done initializing*/
     public void Scale(){
         if(getImage() != null){

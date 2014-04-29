@@ -47,10 +47,11 @@ public class RPG extends StateBasedGame{
 
    @Override
     public void initStatesList(GameContainer gc) throws SlickException {
+       ResourceManager.getInstance().loadResources(gc);
        getState(LEVEL010).init(gc, this);
        getState(LEVEL110).init(gc, this);
        enterState(LEVEL010);
-       ResourceManager.getInstance().loadResources(gc);
+       
     }
  
 }

@@ -4,6 +4,7 @@ package FactorySystem;
 import EntitySystem.Entity;
 import EntitySystem.PhysicalComponent;
 import FactorySystem.EntityFactory;
+import Managers.ResourceManager;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
@@ -15,7 +16,7 @@ public class ItemFactory implements EntityFactory{
     private float xpos, ypos;
     
     public ItemFactory(float x, float y) throws SlickException{
-       itemsheet = new SpriteSheet(new Image("data/images/item_sheet.png"), 32, 32, 2, 3);
+       itemsheet = ResourceManager.getInstance().itemSheet;
        xpos=x;
        ypos=y;
        

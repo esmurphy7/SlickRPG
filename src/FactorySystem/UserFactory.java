@@ -12,6 +12,7 @@ import EntitySystem.PartyComponent;
 import EntitySystem.PhysicalComponent;
 import EntitySystem.StatsComponent;
 import EntitySystem.VisibleComponent;
+import Managers.ResourceManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.newdawn.slick.Animation;
@@ -30,7 +31,7 @@ public class UserFactory implements EntityFactory{
     public UserFactory(float x, float y) throws SlickException{
         xpos=x;
         ypos=y;
-        spritesheet = new SpriteSheet(new Image("data/images/overworldsheet.png"), 15, 24, 2, 1);
+        spritesheet = ResourceManager.getInstance().userSheet;
         int duration = 150;
         up = new Animation(spritesheet, 4, 1, 7, 1, true, duration, false);
         down = new Animation(spritesheet, 0, 0, 3, 0, true, duration, false);
@@ -47,14 +48,11 @@ public class UserFactory implements EntityFactory{
                                 new ItemWearerComponent(), 
                                 new StatsComponent(), 
                                 new PartyComponent());
-        try {
-            SpriteSheet weaponattacksheet = new SpriteSheet(new Image("data/images/userweaponattacksheet.png"), 23, 17, 6);
-            Animation weaponattackanim = new Animation(weaponattacksheet, 0, 0, 11, 0, true, 150, false);
-            Ability weaponattack = new WeaponAttack(weaponattackanim);
-            user.addComponents(new AbilityComponent(weaponattack));
-        } catch (SlickException ex) {
-            Logger.getLogger(UserFactory.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        SpriteSheet weaponattacksheet = ResourceManager.getInstance().userWeaponAttackSheet;
+        Animation weaponattackanim = new Animation(weaponattacksheet, 0, 0, 11, 0, true, 150, false);
+        Ability weaponattack = new WeaponAttack(weaponattackanim);
+        user.addComponents(new AbilityComponent(weaponattack));
         
         return user;
     }

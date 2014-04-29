@@ -2,6 +2,7 @@
 package RPG;
 
 import Interface.Option;
+import Managers.ResourceManager;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.newdawn.slick.GameContainer;
@@ -18,8 +19,8 @@ public class ForestScene extends BattleScene{
 
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-        System.out.println("FOREST SCENE INIT");
-        background=new Image("data/battlescenes/forest.png");
+        //System.out.println("FOREST SCENE INIT");
+        background = ResourceManager.getInstance().forestSceneBackground;
         super.abstractInit(gc, sbg);
         
         

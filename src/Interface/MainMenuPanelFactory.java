@@ -2,33 +2,39 @@
 package Interface;
 
 import Managers.ResourceManager;
-import java.awt.Font;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.UnicodeFont;
 
 public class MainMenuPanelFactory implements PanelFactory{
 
     private TrueTypeFont mainMenuPanelFont;
+    
     public MainMenuPanelFactory(){
         mainMenuPanelFont = ResourceManager.getInstance().eightBitWonder;
     }
+    
     @Override
     public Panel createPanel(GameContainer gc) throws SlickException {
         Panel testPanel = new TestPanelFactory().createPanel(gc);
+        int width = gc.getWidth()/5;
+        int height = gc.getHeight()/3;
         Panel mainMenuPanel = new Panel(gc,
-                                        gc.getWidth()/3, 
-                                        gc.getHeight()/4, 
-                                        gc.getHeight()*2/3, 
-                                        gc.getWidth()/3,
+                                        gc.getWidth()/5, 
+                                        gc.getHeight()/8, 
+                                        height, 
+                                        width,
                                         15,
-                                        new Option(mainMenuPanelFont, testPanel, "Sample"),
-                                        new Option(mainMenuPanelFont, testPanel, "Sample"), 
-                                        new Option(mainMenuPanelFont, testPanel, "Sample")
+                                        new Option(mainMenuPanelFont, testPanel, "Sample1"),
+                                        new Option(mainMenuPanelFont, testPanel, "Sample2"), 
+                                        new Option(mainMenuPanelFont, testPanel, "Sample3"),
+                                        new Option(mainMenuPanelFont, testPanel, "Sample4"),
+                                        new Option(mainMenuPanelFont, testPanel, "Sample5"),
+                                        new Option(mainMenuPanelFont, testPanel, "Sample6"),
+                                        new Option(mainMenuPanelFont, testPanel, "Sample7")
                                       //new Option(new Image("data/interface/sampleoption.png"))
                 );
+        testPanel.setParent(mainMenuPanel);
         return mainMenuPanel;
     }
 

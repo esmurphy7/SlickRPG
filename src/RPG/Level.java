@@ -28,9 +28,8 @@ public abstract class Level extends RPGState{
     TiledMap map;
     int battlesceneID;
     static final int SIZE = 32;
-    static final float ZOOM_FACTOR = 1.5f;
+    static final float ZOOM_FACTOR = 1.75f;
     ArrayList<Entity> exits;
-    //TrueTypeFont levelFont;
 
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
@@ -43,8 +42,8 @@ public abstract class Level extends RPGState{
     
     @Override
     public void abstractInit(GameContainer gc, StateBasedGame sbg) throws SlickException {
-        System.out.println("INIT ABSTRACT LVL");
-        
+        //System.out.println("INIT ABSTRACT LVL");
+        currentPanel = null;
         this.game = sbg;
         this.user = User.getUser();
         this.localEntities = new ArrayList();
@@ -59,25 +58,31 @@ public abstract class Level extends RPGState{
     @Override
     public void abstractUpdate(GameContainer gc, StateBasedGame sbg, int delta) {
         float fdelta = delta*0.1f;
-        updateInput(input, delta);
+        
+        if(interfaceIsRendering()){
+            currentPanel.update();
+            updateInterfaceInput(input, delta);
+
+        } else {
+            updateLevelInput(input, delta);
+            //updateAI();
+        }
     }
     
     @Override
     public void abstractRender(GameContainer gc, StateBasedGame sbg, Graphics grphcs) {
         grphcs.scale(ZOOM_FACTOR, ZOOM_FACTOR);
         map.render(0,0);
-        if(currentPanel != null){
-            currentPanel.render(gc.getWidth()/2 - currentPanel.getWidth()/2,  gc.getHeight()/8);
-        }
-        
-        /*Draw rectangles around physical entities*/
-        /*for(Entity entity : localEntities){
+
+        for(Entity entity : localEntities){
             checkLOS(entity, grphcs);
             if(entity.hasComponents(VisibleComponent.class) && entity.hasComponents(PhysicalComponent.class)){
                 VisibleComponent viscomp = entity.getComponent(VisibleComponent.class);
                 PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
                 viscomp.getSprite().draw(physcomp.getXpos(), physcomp.getYpos());
             }
+            /* Draw rectangles around physical components for testing purposes*/
+            /*
             if(entity.hasComponents(PhysicalComponent.class)){
                 PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
                 float x = physcomp.getBoundingbox().getX();
@@ -85,11 +90,18 @@ public abstract class Level extends RPGState{
                 float w = physcomp.getBoundingbox().getWidth();
                 float h = physcomp.getBoundingbox().getHeight();
                 grphcs.drawRect(x, y, w, h);
-            }                
-        }*/
+            }      */          
+        }
+        
+        if(currentPanel != null){
+            currentPanel.render(currentPanel.getX(), currentPanel.getHeight());
+        }
     }
     
-    public void updateInput(Input input, int delta){ 
+    /* 
+     * Handles input to update the level
+        Called when no interface is rendering*/
+    private void updateLevelInput(Input input, int delta){ 
         for(Entity entity : localEntities){
             if(entity.hasComponents(InputComponent.class)){
                 if(entity.hasComponents(VisibleComponent.class) && entity.hasComponents(PhysicalComponent.class)){
@@ -181,8 +193,37 @@ public abstract class Level extends RPGState{
         }
     }
     
+    /*
+     * Handles input to update the interface if any interface is being rendered
+     */
+    private void updateInterfaceInput(Input input, int delta){
+        if(input.isKeyPressed(Input.KEY_X)){
+            currentPanel = currentPanel.Select();
+        } else if(input.isKeyPressed(Input.KEY_Z)){
+            currentPanel.Deselect();
+            if(currentPanel == ResourceManager.getInstance().mainMenuPanel){
+                currentPanel = null;
+            }
+        } else if(input.isKeyPressed(Input.KEY_UP)){
+            currentPanel.MoveUp();
+        } else if(input.isKeyPressed(Input.KEY_DOWN)){
+            currentPanel.MoveDown();
+        } else if(input.isKeyPressed(Input.KEY_LEFT)){
+            currentPanel.MoveLeft();
+        } else if(input.isKeyPressed(Input.KEY_RIGHT)){
+            currentPanel.MoveRight();
+        } else if(input.isKeyPressed(Input.KEY_ESCAPE)){
+            currentPanel.Deselect();
+            if(currentPanel == ResourceManager.getInstance().mainMenuPanel){
+                currentPanel = null;
+            }
+        } else if(input.isKeyPressed(Input.KEY_ENTER)){
+            currentPanel = currentPanel.Select();
+        }
+    }
+    
     /*Returns true if "entity" is currently intersecting something that blocks movement*/
-    public boolean IntersectsBlockable(Entity entity){
+    private boolean IntersectsBlockable(Entity entity){
         for(Entity ent : localEntities){
             if(ent.hasComponents(PhysicalComponent.class)){
                 PhysicalComponent sourcephyscomp = entity.getComponent(PhysicalComponent.class);
@@ -198,7 +239,7 @@ public abstract class Level extends RPGState{
     }
     
     /*Returns all entities that are intersecting "entity"*/
-    public ArrayList<Entity> getIntersecting(Entity entity){
+    private ArrayList<Entity> getIntersecting(Entity entity){
         ArrayList<Entity> intersecting = new ArrayList();
         for(Entity ent : localEntities){
             if(ent.hasComponents(PhysicalComponent.class)){
@@ -215,7 +256,7 @@ public abstract class Level extends RPGState{
     }
     
     /*Returns all entities that are touching "entity"*/
-    public ArrayList<Entity> getTouching(Entity entity){
+    private ArrayList<Entity> getTouching(Entity entity){
         ArrayList<Entity> touching = new ArrayList();
         for(Entity ent : localEntities){
             if(ent.hasComponents(PhysicalComponent.class)){
@@ -235,7 +276,7 @@ public abstract class Level extends RPGState{
     }
     
     /*Returns the entity in "targets" that is closest to the "source" entity*/
-    public Entity getClosest(Entity source, ArrayList<Entity> targets){
+    private Entity getClosest(Entity source, ArrayList<Entity> targets){
         PhysicalComponent physcomp = source.getComponent(PhysicalComponent.class);
         float sourcex = physcomp.getBoundingbox().getCenterX();
         float sourcey = physcomp.getBoundingbox().getCenterY();
@@ -262,13 +303,13 @@ public abstract class Level extends RPGState{
     }
     
     /* Add all objects created in the map editor to their corresponding set of entities*/
-    public void initEntities(){
+    private void initEntities(){
         detectTerrain();
         detectExits();
         localEntities.add(user);
     }
 
-    public void detectTerrain(){
+    private void detectTerrain(){
         for(int collisionLayerID=0; collisionLayerID<map.getObjectGroupCount(); collisionLayerID++){
             for(int objectID=0; objectID<map.getObjectCount(collisionLayerID); objectID++){
                 if(map.getObjectProperty(collisionLayerID, objectID, "blockable", "false").equals("true")){
@@ -286,7 +327,7 @@ public abstract class Level extends RPGState{
         }
     }
     
-    public void detectExits(){
+    private void detectExits(){
         for(int collisionLayerID=0; collisionLayerID<map.getObjectGroupCount(); collisionLayerID++){
             for(int objectID=0; objectID<map.getObjectCount(collisionLayerID); objectID++){
                 Rectangle box = null;
@@ -311,7 +352,7 @@ public abstract class Level extends RPGState{
     }
     
     /*Check to see if entity "user" is in the line of sight of any enemy entity*/
-    public void checkLOS(Entity user, Graphics g){
+    private void checkLOS(Entity user, Graphics g){
         ArrayList<Entity> inLOS = new ArrayList(); //hold entities in the line of sight
         ArrayList<Entity> intersecting; //hold entities that intersect the line of sight box
         for(Entity enemy : localEntities){
@@ -391,7 +432,7 @@ public abstract class Level extends RPGState{
     }
     
     /*Returns the exit entity that "entity" intersects*/
-    public Entity getIntersectingExit(Entity entity){
+    private Entity getIntersectingExit(Entity entity){
         PhysicalComponent pc = entity.getComponent(PhysicalComponent.class);
         Rectangle box = pc.getBoundingbox();
         float xpos = box.getCenterX();
@@ -423,10 +464,7 @@ public abstract class Level extends RPGState{
      */
     public void changeMap(Entity exit){
         if(exit != null){
-            
             ExitComponent ec = exit.getComponent(ExitComponent.class);
-            
-            
             VisibleComponent uvc = user.getComponent(VisibleComponent.class);
             PhysicalComponent upc = user.getComponent(PhysicalComponent.class);
             if(uvc.getSprite() == uvc.getUp()){
@@ -443,5 +481,13 @@ public abstract class Level extends RPGState{
             game.enterState(ec.getTargetID(), new FadeOutTransition(Color.black, 1000), new FadeInTransition(Color.black, 1000));
         }
     }
-    
+
+    private boolean interfaceIsRendering() {
+        if(currentPanel != null){
+            return true;
+        } else {
+            return false;
+        }
+    }
+        
 }

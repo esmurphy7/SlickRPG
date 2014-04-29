@@ -2,14 +2,9 @@
 package Interface;
 
 import Managers.ResourceManager;
-import java.awt.Font;
-import java.io.InputStream;
 import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.UnicodeFont;
-import org.newdawn.slick.util.ResourceLoader;
 
 public class ActionPanelFactory implements PanelFactory{
 
