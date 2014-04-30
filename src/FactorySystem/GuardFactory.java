@@ -34,9 +34,9 @@ public class GuardFactory implements EntityFactory{
         Entity guard = new Entity(new PhysicalComponent(new Rectangle( getXpos(), getYpos(), getSprite().getWidth(), getSprite().getHeight())), 
                                 new StatsComponent(),
                                 new VisibleComponent(getSpritesheet(), getSprite(), getUp(), getDown(), getLeft(), getRight()), 
-                                new EnemyComponent(100), 
-                                new PartyComponent(),
+                                new EnemyComponent(100),
                                 new AbilityComponent());
+        guard.addComponents(new PartyComponent(guard));
         return guard;
     }
 

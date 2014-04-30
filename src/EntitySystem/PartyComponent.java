@@ -2,6 +2,7 @@
 package EntitySystem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class PartyComponent extends EntityComponent{
 

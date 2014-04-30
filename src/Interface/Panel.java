@@ -34,15 +34,9 @@ public class Panel extends UIComponent{
     private Selector selector;
     private Panel parent;
     
-    /* Constructor with ArrayList of options and without background image*/
+    /* Constructor that should be used by TargetOverlay*/
     public Panel(GameContainer gc) throws SlickException{
         setContainer(gc);
-        options = new ArrayList();
-        visibleOptionIds = new ArrayList();
-        displayPoints = new ArrayList();
-        optionsAllowed = 0;
-        currentOptionId = 0;
-        selector = new Selector();
     }
     
     /* Constructor for more concrete Panel ideal for factories and builders

@@ -4,6 +4,7 @@ package Managers;
 import Interface.ActionPanelFactory;
 import Interface.MainMenuPanelFactory;
 import Interface.Panel;
+import Interface.TargetOverlay;
 import java.awt.Font;
 import java.io.InputStream;
 import org.newdawn.slick.GameContainer;
@@ -53,7 +54,7 @@ public class ResourceManager {
      ===============*/
     public Panel mainMenuPanel;
     public Panel actionPanel;
-    
+    public Panel targetOverlay;
     
     
     private ResourceManager(){
@@ -96,7 +97,10 @@ public class ResourceManager {
     
     private void loadPanels(GameContainer gc) throws SlickException{
         mainMenuPanel = new MainMenuPanelFactory().createPanel(gc);
+        /* actionPanel requires targetOverlay to be loaded first */
+        targetOverlay = new TargetOverlay(gc);
         actionPanel = new ActionPanelFactory().createPanel(gc);
+        
     }
     
     private void loadFonts(){

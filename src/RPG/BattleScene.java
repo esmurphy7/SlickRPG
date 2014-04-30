@@ -3,6 +3,8 @@ package RPG;
 
 import EntitySystem.Entity;
 import EntitySystem.User;
+import Interface.TargetOverlay;
+import Managers.BattleManager;
 import Managers.ResourceManager;
 import java.util.ArrayList;
 import org.newdawn.slick.GameContainer;
@@ -14,9 +16,6 @@ import org.newdawn.slick.state.StateBasedGame;
 public abstract class BattleScene extends RPGState{
     /*The static landscape image for the battle, drawn to top half of container*/
     Image background;
-    /*The entity that is currently taking its turn*/
-    Entity currentEntity;
-    //TrueTypeFont battleSceneFont;
     
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
@@ -34,16 +33,19 @@ public abstract class BattleScene extends RPGState{
         scaleBackgrounds(gc);
         
         currentPanel = ResourceManager.getInstance().actionPanel;
-        //testPanel = new TestPanelFactory().createPanel(gc);
+        
     }
-    
+
     @Override
     public void abstractUpdate(GameContainer gc, StateBasedGame sbg, int i){
         /* Update BattleManager */
-        
+        BattleManager.getInstance().update();
         /* Update interface components */
         currentPanel.update();
-        /*Separate generic panel and TargetOverlay input updates*/
+        updatePanelInput();
+
+    }
+    private void updatePanelInput(){
         if(input.isKeyPressed(SELECT) || input.isKeyPressed(ENTER)){
             currentPanel = currentPanel.selectCurrentOption();
         }else if(input.isKeyPressed(BACK) || input.isKeyPressed(ESCAPE)){
@@ -62,6 +64,7 @@ public abstract class BattleScene extends RPGState{
             currentPanel.MoveRight();
         }
     }
+    
     
     @Override
     public void abstractRender(GameContainer gc, StateBasedGame sbg, Graphics grphcs){

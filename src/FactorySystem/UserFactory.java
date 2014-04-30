@@ -13,6 +13,8 @@ import EntitySystem.PhysicalComponent;
 import EntitySystem.StatsComponent;
 import EntitySystem.VisibleComponent;
 import Managers.ResourceManager;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.newdawn.slick.Animation;
@@ -46,13 +48,13 @@ public class UserFactory implements EntityFactory{
                                 new VisibleComponent(spritesheet,sprite,up,down,left,right), new InputComponent(), 
                                 new ItemBearerComponent(), 
                                 new ItemWearerComponent(), 
-                                new StatsComponent(), 
-                                new PartyComponent());
+                                new StatsComponent());
         
         SpriteSheet weaponattacksheet = ResourceManager.getInstance().userWeaponAttackSheet;
         Animation weaponattackanim = new Animation(weaponattacksheet, 0, 0, 11, 0, true, 150, false);
         Ability weaponattack = new WeaponAttack(weaponattackanim);
         user.addComponents(new AbilityComponent(weaponattack));
+        user.addComponents(new PartyComponent(user));
         
         return user;
     }

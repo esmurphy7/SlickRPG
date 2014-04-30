@@ -34,8 +34,6 @@ public abstract class Level extends RPGState{
     ArrayList<Entity> exits;
     
     
-    
-    
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
     @Override
@@ -460,9 +458,8 @@ public abstract class Level extends RPGState{
     private void enterBattle(Entity enemy){
         PartyComponent EPc = enemy.getComponent(PartyComponent.class);
         PartyComponent UPc = User.getInstance().getComponent(PartyComponent.class);
-        BattleManager.getINSTANCE().Reset(EPc.getParty(), UPc.getParty());
+        BattleManager.getInstance().Reset(EPc.getParty(), UPc.getParty());
         game.enterState(battlesceneID);
-  
     }
     
     /*

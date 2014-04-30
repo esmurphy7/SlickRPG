@@ -26,7 +26,7 @@ public class ActionPanelFactory implements PanelFactory{
                                         gc.getWidth()/3,
                                         15
                                       );
-        actionPanel.setOptions(new ArrayList<Option>(Arrays.asList(new Option(actionPanel, testPanel,  actionPanelFont, "Attack"),
+        actionPanel.setOptions(new ArrayList<Option>(Arrays.asList(new Option(actionPanel, ResourceManager.getInstance().targetOverlay,  actionPanelFont, "Attack"),
                                                                     new Option(actionPanel, testPanel,  actionPanelFont, "Spell"),
                                                                     new Option(actionPanel, testPanel,  actionPanelFont, "Item"),
                                                                     new Option(actionPanel, testPanel,  actionPanelFont, "Wait"),

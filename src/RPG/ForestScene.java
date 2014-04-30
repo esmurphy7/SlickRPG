@@ -23,8 +23,6 @@ public class ForestScene extends BattleScene{
         background = ResourceManager.getInstance().forestSceneBackground;
         super.abstractInit(gc, sbg);
         
-        
-        
     }
 
     @Override
@@ -39,7 +37,7 @@ public class ForestScene extends BattleScene{
 
     @Override
     public void enter(GameContainer gc, StateBasedGame sbg){
-        System.out.println("FOREST SCENE ENTERED");
+        //System.out.println("FOREST SCENE ENTERED");
     }
     
 }

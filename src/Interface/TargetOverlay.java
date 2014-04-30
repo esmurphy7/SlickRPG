@@ -1,9 +1,12 @@
 
 package Interface;
 
+import Managers.BattleManager;
+import Managers.ResourceManager;
 import java.util.ArrayList;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Ellipse;
 import org.newdawn.slick.geom.Point;
 import org.newdawn.slick.util.Log;
@@ -12,7 +15,7 @@ import org.newdawn.slick.util.Log;
 /*
  * Represents the overlay in battle scenes where the user chooses which enemy/friendly they choose to target
  */
-public class TargetOverlay extends UIComponent{
+public class TargetOverlay extends Panel{
     
     private Image enemyIndicator;
     private Image friendlyIndicator;
@@ -48,36 +51,75 @@ public class TargetOverlay extends UIComponent{
     
     
     
-    public TargetOverlay(GameContainer gc){
-        setContainer(gc);
+    public TargetOverlay(GameContainer gc) throws SlickException{
+        super(gc);
+        setParent(ResourceManager.getInstance().actionPanel);
         //find total enemies and friendlies
         //throw error if either is greater than 6 or less than 1
         //initialize enemy and friendly points
-        initEnemyPoints();
         //initFriendlyPoints();
     }
     
-    private void initEnemyPoints(){
-        /* For eveery enemy
+    
+    
+    @Override
+    public void MoveUp(){
+        
+    }
+    @Override
+    public void MoveDown(){
+        
+    }
+    @Override
+    public void MoveLeft(){
+        
+    }
+    @Override
+    public void MoveRight(){
+        
+    }
+    public void Select(){
+        
+    }
+    public Panel returnToActionPanel(){
+        return ResourceManager.getInstance().actionPanel;
+    }
+    
+    
+    @Override
+    public void update(){
+        /* 
+         * update points and indicators.
+         * scale each indicator.
+         */
+        totalEnemies = BattleManager.getInstance().getEnemies().size();
+        totalFriendlies = BattleManager.getInstance().getFriendlies().size();
+        updateEnemyPoints();
+    }
+    
+    
+    /* Define the points on the enemy side (left half) of the battlescene where the enemies will be located */
+    private void updateEnemyPoints(){
+        /* For every enemy
          *    commit the first point to the center
          *    generate random point until it is acceptable then commit the point
          */
         int i=0;
         while(i<totalEnemies){
             if(i==0){
-                commitPoint(new Point(getContainer().getWidth()/4, getContainer().getHeight()/4));
+                commitEnemyPoints(new Point(getContainer().getWidth()/4, getContainer().getHeight()/4));
             }else {
                 Point randomPoint = null;
                 do {
                     randomPoint = generateRandomEnemyPoint();
                 }while(!isAcceptable(randomPoint));
-                commitPoint(randomPoint);
+                commitEnemyPoints(randomPoint);
             }
             i++;
         }
     }
     /* Add the point to the set, add its corresponding area shape to the set */
-    private void commitPoint(Point point){
+    private void commitEnemyPoints(Point point){
         enemyPoints.add(point);
         enemyAreas.add(new Ellipse(point.getCenterX(), point.getCenterY(), charAreaWidth, charAreaHeight));
     }
@@ -87,7 +129,7 @@ public class TargetOverlay extends UIComponent{
         float y = (float)Math.random() * getContainer().getHeight()/4;
         return new Point(x,y);
     }
-    /* False if given Point intersects with another area or is offscreen*/
+    /* False if given Point intersects with another charArea or is offscreen*/
     private boolean isAcceptable(Point point){
         /*if intersects charAreas or borders  return false*/
         Ellipse borderTest = new Ellipse(point.getCenterX(), point.getCenterY(), this.charAreaWidth, this.charAreaHeight);
@@ -100,40 +142,15 @@ public class TargetOverlay extends UIComponent{
         return true;
     }
     
-    
-    public void MoveUp(){
-        
-    }
-    public void MoveDown(){
-        
-    }
-    public void MoveLeft(){
-        
-    }
-    public void MoveRight(){
-        
-    }
-    public void Select(){
-        
-    }
-    public void Deselect(){
-        
-    }
-    
-    
-    public void update(){
-        /* 
-         * update points and indicators.
-         * scale each indicator.
-         */
-    }
     @Override
     public void render(float x, float y){
         /* render the entire overlay at x and y.
          * render each indicator at it's point.
          */
+        //getContainer().getGraphics().drawString("RENDERING TARGETOVERLAY", x, y);
         for(Ellipse enemyArea : enemyAreas){
-            getContainer().getGraphics().draw(enemyArea);
+            ResourceManager.getInstance().targetIndicator.draw(enemyArea.getMinX(), enemyArea.getMinY());
+            //getContainer().getGraphics().draw(enemyArea);
         }
     }
 

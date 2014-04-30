@@ -29,6 +29,12 @@ public class Option extends UIComponent{
         this.destination.setParent(containing);
         name="DEAD END";
     }
+    /* Constructor for options with only an icon */
+    public Option(Panel containing, Panel destination, Image img){
+        this.containingPanel=containing;
+        this.destination=destination;
+        setImage(img);
+    }
     /*Constructor to give text-only options*/
     public Option(Panel containing, Panel destination, TrueTypeFont font, String name){
         this.containingPanel=containing;
@@ -65,10 +71,9 @@ public class Option extends UIComponent{
     public void render(float x, float y){
         if(getImage() != null){
             getImage().draw(x+margin, y+margin);
-        
-        /* Draw the name of the option using the container's font
-         * Fonts are state specific*/
-            getFont().drawString(x+margin+getImage().getWidth()+margin, y+margin+getImage().getHeight()/4, name, Color.white);
+            if(name != null){
+                getFont().drawString(x+margin+getImage().getWidth()+margin, y+margin+getImage().getHeight()/4, name, Color.white);
+            }
         } else {
             getFont().drawString(x+margin, y+margin, name);
         }
