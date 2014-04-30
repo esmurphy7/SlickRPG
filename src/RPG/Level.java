@@ -4,6 +4,7 @@ package RPG;
 import EntitySystem.*;
 import FactorySystem.*;
 import Interface.MainMenuPanelFactory;
+import Managers.BattleManager;
 import Managers.ResourceManager;
 import java.awt.Font;
 import java.io.InputStream;
@@ -21,6 +22,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.state.transition.FadeInTransition;
 import org.newdawn.slick.state.transition.FadeOutTransition;
 import org.newdawn.slick.tiled.TiledMap;
+import org.newdawn.slick.util.Log;
 import org.newdawn.slick.util.ResourceLoader;
 
 public abstract class Level extends RPGState{
@@ -30,7 +32,10 @@ public abstract class Level extends RPGState{
     static final int SIZE = 32;
     static final float ZOOM_FACTOR = 1.75f;
     ArrayList<Entity> exits;
-
+    
+    
+    
+    
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;
     @Override
@@ -45,7 +50,6 @@ public abstract class Level extends RPGState{
         //System.out.println("INIT ABSTRACT LVL");
         currentPanel = null;
         this.game = sbg;
-        this.user = User.getUser();
         this.localEntities = new ArrayList();
         this.exits = new ArrayList();
         this.input = gc.getInput();
@@ -109,7 +113,7 @@ public abstract class Level extends RPGState{
                     PhysicalComponent physcomp = entity.getComponent(PhysicalComponent.class);
                     float fdelta = delta*0.1f;
                     
-                    if(input.isKeyDown(Input.KEY_UP)){
+                    if(input.isKeyDown(UP)){
                             viscomp.setSprite(viscomp.getUp());
                             physcomp.getBoundingbox().setY(physcomp.getYpos() - fdelta);
                             if(IntersectsBlockable(entity) || physcomp.getBoundingbox().getY() < 0){
@@ -119,7 +123,7 @@ public abstract class Level extends RPGState{
                                 physcomp.setYpos(physcomp.getYpos() - fdelta);
                             }
 
-                    }else if(input.isKeyDown(Input.KEY_DOWN)){
+                    }else if(input.isKeyDown(DOWN)){
                         viscomp.setSprite(viscomp.getDown());
                         physcomp.getBoundingbox().setY(physcomp.getBoundingbox().getY() + fdelta);
                         if(IntersectsBlockable(entity) || physcomp.getYpos() > map.getHeight()*SIZE-viscomp.getSprite().getHeight()){
@@ -129,7 +133,7 @@ public abstract class Level extends RPGState{
                             physcomp.setYpos(physcomp.getYpos() + fdelta);
                         }
 
-                    }else if(input.isKeyDown(Input.KEY_LEFT)){
+                    }else if(input.isKeyDown(LEFT)){
                         viscomp.setSprite(viscomp.getLeft());
                         physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() - fdelta);
                         if(IntersectsBlockable(entity) || physcomp.getXpos() < 0){
@@ -139,7 +143,7 @@ public abstract class Level extends RPGState{
                                 physcomp.setXpos(physcomp.getXpos() - fdelta);
                         }
 
-                    }else if(input.isKeyDown(Input.KEY_RIGHT)){
+                    }else if(input.isKeyDown(RIGHT)){
                         viscomp.setSprite(viscomp.getRight());
                         physcomp.getBoundingbox().setX(physcomp.getBoundingbox().getX() + fdelta);
                         if(IntersectsBlockable(entity) || physcomp.getXpos() > map.getWidth()*SIZE-viscomp.getSprite().getWidth()){
@@ -148,7 +152,7 @@ public abstract class Level extends RPGState{
                             viscomp.getSprite().update(delta);
                             physcomp.setXpos(physcomp.getXpos() + fdelta);
                         }
-                    }else if(input.isKeyDown(Input.KEY_X)){
+                    }else if(input.isKeyPressed(SELECT)){
                         ArrayList<Entity> touching = getTouching(entity);
                         Entity interactable = null;
                         for(Entity ent : touching){
@@ -183,7 +187,7 @@ public abstract class Level extends RPGState{
                                 }
                             }    
                         }
-                    } else if(input.isKeyDown(Input.KEY_ENTER)){
+                    } else if(input.isKeyPressed(ENTER)){
                         currentPanel = ResourceManager.getInstance().mainMenuPanel;
                     }
                     Entity exit = getIntersectingExit(entity);
@@ -197,28 +201,26 @@ public abstract class Level extends RPGState{
      * Handles input to update the interface if any interface is being rendered
      */
     private void updateInterfaceInput(Input input, int delta){
-        if(input.isKeyPressed(Input.KEY_X)){
-            currentPanel = currentPanel.Select();
-        } else if(input.isKeyPressed(Input.KEY_Z)){
-            currentPanel.Deselect();
+        
+        if(input.isKeyPressed(SELECT) || input.isKeyPressed(ENTER)){
+            currentPanel = currentPanel.selectCurrentOption();
+        } else if(input.isKeyPressed(BACK) || input.isKeyPressed(ESCAPE)){
+            /* If the currentPanel is the main menu, release it to switch to handling level input. 
+             Otherwise, return to the currentPanel's parent Panel */
             if(currentPanel == ResourceManager.getInstance().mainMenuPanel){
                 currentPanel = null;
+            }else{
+                currentPanel = currentPanel.getParent();
             }
-        } else if(input.isKeyPressed(Input.KEY_UP)){
+
+        } else if(input.isKeyPressed(UP)){
             currentPanel.MoveUp();
-        } else if(input.isKeyPressed(Input.KEY_DOWN)){
+        } else if(input.isKeyPressed(DOWN)){
             currentPanel.MoveDown();
-        } else if(input.isKeyPressed(Input.KEY_LEFT)){
+        } else if(input.isKeyPressed(LEFT)){
             currentPanel.MoveLeft();
-        } else if(input.isKeyPressed(Input.KEY_RIGHT)){
+        } else if(input.isKeyPressed(RIGHT)){
             currentPanel.MoveRight();
-        } else if(input.isKeyPressed(Input.KEY_ESCAPE)){
-            currentPanel.Deselect();
-            if(currentPanel == ResourceManager.getInstance().mainMenuPanel){
-                currentPanel = null;
-            }
-        } else if(input.isKeyPressed(Input.KEY_ENTER)){
-            currentPanel = currentPanel.Select();
         }
     }
     
@@ -306,7 +308,7 @@ public abstract class Level extends RPGState{
     private void initEntities(){
         detectTerrain();
         detectExits();
-        localEntities.add(user);
+        localEntities.add(User.getInstance());
     }
 
     private void detectTerrain(){
@@ -410,7 +412,7 @@ public abstract class Level extends RPGState{
                             if(closest != enemy){
                                 if(closest.hasComponents(InputComponent.class)){
                                     System.out.println("USER IN LOS");
-                                    game.enterState(battlesceneID);
+                                    enterBattle(enemy);
                                 }
                             }
                         }
@@ -421,8 +423,7 @@ public abstract class Level extends RPGState{
                         if(closest != enemy){
                             if(closest.hasComponents(InputComponent.class)){
                                 System.out.println("USER IN LOS");
-                                game.enterState(battlesceneID);
-
+                                enterBattle(enemy);
                             }
                         }
                     }
@@ -455,6 +456,14 @@ public abstract class Level extends RPGState{
     public void enter(GameContainer gc, StateBasedGame sbg){
         //currentPanel = ResourceManager.getInstance().mainMenuPanel;
     }
+    /* Enter battle with enemy*/
+    private void enterBattle(Entity enemy){
+        PartyComponent EPc = enemy.getComponent(PartyComponent.class);
+        PartyComponent UPc = User.getInstance().getComponent(PartyComponent.class);
+        BattleManager.getINSTANCE().Reset(EPc.getParty(), UPc.getParty());
+        game.enterState(battlesceneID);
+  
+    }
     
     /*
      * Transitions the map to another map based on the exit that the user took
@@ -462,11 +471,11 @@ public abstract class Level extends RPGState{
      *  Handle the direction the user is facing
      *      Update the user's position to the target gamestate as if the user walked through the exit
      */
-    public void changeMap(Entity exit){
+    private void changeMap(Entity exit){
         if(exit != null){
             ExitComponent ec = exit.getComponent(ExitComponent.class);
-            VisibleComponent uvc = user.getComponent(VisibleComponent.class);
-            PhysicalComponent upc = user.getComponent(PhysicalComponent.class);
+            VisibleComponent uvc = User.getInstance().getComponent(VisibleComponent.class);
+            PhysicalComponent upc = User.getInstance().getComponent(PhysicalComponent.class);
             if(uvc.getSprite() == uvc.getUp()){
                 upc.setYpos(map.getHeight()*SIZE-SIZE);
             }else if(uvc.getSprite() == uvc.getDown()){

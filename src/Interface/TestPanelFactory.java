@@ -1,8 +1,11 @@
 
 package Interface;
 
+import Managers.ResourceManager;
 import java.awt.Font;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
@@ -17,19 +20,21 @@ public class TestPanelFactory implements PanelFactory{
     
     @Override
     public Panel createPanel(GameContainer gc) throws SlickException {
-        try {
-		InputStream inputStream	= ResourceLoader.getResourceAsStream("data/8-BIT WONDER.ttf");
- 
-		Font awtFont = Font.createFont(Font.TRUETYPE_FONT, inputStream);
-		awtFont = awtFont.deriveFont(12f); // set font size
-		testPanelFont = new TrueTypeFont(awtFont, false);
- 
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-        Panel testPanel = new Panel(gc, 10,10,200,200,0, new Option(testPanelFont),
-                                                    new Option(testPanelFont),
-                                                    new Option(testPanelFont));
+        testPanelFont = ResourceManager.getInstance().eightBitWonder;
+        Panel testPanel = new Panel(gc, 
+                                    10,
+                                    10,
+                                    200,
+                                    200,
+                                    0
+                                    );
+        testPanel.setOptions(new ArrayList<Option>(Arrays.asList(new Option(testPanel, testPanelFont),
+                                                                new Option(testPanel, testPanelFont),
+                                                                new Option(testPanel, testPanelFont)
+                                                                )
+                                                    )
+                            );
+        testPanel.initPanel();
         return testPanel;
     }
 

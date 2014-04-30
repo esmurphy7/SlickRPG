@@ -1,6 +1,7 @@
 
 package Managers;
 
+import Interface.ActionPanelFactory;
 import Interface.MainMenuPanelFactory;
 import Interface.Panel;
 import java.awt.Font;
@@ -29,6 +30,7 @@ public class ResourceManager {
     /* Interface Images*/
     public Image panelBackground;
     public Image forestSceneBackground;
+    public Image targetIndicator;
     
     /*===============
      * SpriteSheets
@@ -50,7 +52,7 @@ public class ResourceManager {
      * Panels
      ===============*/
     public Panel mainMenuPanel;
-    
+    public Panel actionPanel;
     
     
     
@@ -75,6 +77,7 @@ public class ResourceManager {
     private void loadImages() throws SlickException{
         panelBackground = new Image("data/interface/panel.png");
         forestSceneBackground = new Image("data/battlescenes/forest.png");
+        targetIndicator = new Image("data/interface/arrow_up.png");
     }
     
     private void loadSpriteSheets() throws SlickException{
@@ -93,6 +96,7 @@ public class ResourceManager {
     
     private void loadPanels(GameContainer gc) throws SlickException{
         mainMenuPanel = new MainMenuPanelFactory().createPanel(gc);
+        actionPanel = new ActionPanelFactory().createPanel(gc);
     }
     
     private void loadFonts(){

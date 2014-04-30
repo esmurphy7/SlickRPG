@@ -34,29 +34,15 @@ public class Panel extends UIComponent{
     private Selector selector;
     private Panel parent;
     
-    /* Constructor with series of options and without background image*/
-    public Panel(GameContainer gc, Option...opts) throws SlickException{
-        setContainer(gc);
-        options = new ArrayList(Arrays.asList(opts));
-        if(!options.isEmpty()){
-            visibleOptionIds = new ArrayList();
-            displayPoints = new ArrayList();
-            optionsAllowed = 0;
-            currentOptionId = 0;
-            selector = new Selector();
-        }
-    }
     /* Constructor with ArrayList of options and without background image*/
-    public Panel(GameContainer gc, ArrayList<Option> opts) throws SlickException{
+    public Panel(GameContainer gc) throws SlickException{
         setContainer(gc);
-        options = opts;
-        if(!options.isEmpty()){
-            visibleOptionIds = new ArrayList();
-            displayPoints = new ArrayList();
-            optionsAllowed = 0;
-            currentOptionId = 0;
-            selector = new Selector();
-        }
+        options = new ArrayList();
+        visibleOptionIds = new ArrayList();
+        displayPoints = new ArrayList();
+        optionsAllowed = 0;
+        currentOptionId = 0;
+        selector = new Selector();
     }
     
     /* Constructor for more concrete Panel ideal for factories and builders
@@ -67,25 +53,21 @@ public class Panel extends UIComponent{
      * @param w: width of panel
      * @param marg: padding for panel's options
      */
-    public Panel(GameContainer gc, int x, int y, int h, int w, int marg, Option...opts) throws SlickException{
+    public Panel(GameContainer gc, int x, int y, int h, int w, int marg) throws SlickException{
         setContainer(gc);
         setX(x);
         setY(y);
         setHeight(h);
         setWidth(w);
-        setMargin(marg);
+        this.MARGIN=marg;
         setImage(ResourceManager.getInstance().panelBackground.getScaledCopy(w, h));
-        options=new ArrayList();
-        options.addAll(Arrays.asList(opts));
-        if(!options.isEmpty()){
-            visibleOptionIds = new ArrayList();
-            displayPoints = new ArrayList();
-            optionsAllowed = 0;
-            currentOptionId = 0;
-            selector = new Selector();
-        }    
         
-        initPanel();
+        options=new ArrayList();
+        visibleOptionIds = new ArrayList();
+        displayPoints = new ArrayList();
+        optionsAllowed = 0;
+        currentOptionId = 0;
+        selector = new Selector();
     }
     
     public int getMargin(){
@@ -118,15 +100,12 @@ public class Panel extends UIComponent{
     
     
     /*Relay select command to current option*/
-    public Panel Select(){
+    public Panel selectCurrentOption(){
         if(options.get(currentOptionId).getDestination() != null){
             return options.get(currentOptionId).getDestination();
         } else {
             return this;
         }
-    }
-    public Panel Deselect(){
-        return parent;
     }
     
     public void MoveUp(){
@@ -181,7 +160,8 @@ public class Panel extends UIComponent{
         currentOptionId=id;
     }
 
-    /* Defines the display points on the panel and initializes the visible options*/
+    /* Defines the display points on the panel, populates the visibleoptionIds, and scales each option accordingly.
+     Called by factories when building panels.*/
     public void initPanel(){
         int heightAvailable = getHeight()-2*MARGIN;
         int widthAvailable = getWidth()-2*MARGIN;
@@ -245,7 +225,7 @@ public class Panel extends UIComponent{
         }
         
         for(Option opt : options){
-            opt.Scale();
+            opt.inflate();
         }
         
     }

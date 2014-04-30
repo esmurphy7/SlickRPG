@@ -22,9 +22,16 @@ public abstract class RPGState extends BasicGameState{
     StateBasedGame game;
     int stateID;
     ArrayList<Entity> localEntities;
-    Entity user;
     Panel currentPanel;
     
+    static final int SELECT = Input.KEY_X;
+    static final int BACK = Input.KEY_Z;
+    static final int UP = Input.KEY_UP;
+    static final int DOWN = Input.KEY_DOWN;
+    static final int LEFT = Input.KEY_LEFT;
+    static final int RIGHT = Input.KEY_RIGHT;
+    static final int ENTER = Input.KEY_ENTER;
+    static final int ESCAPE = Input.KEY_ESCAPE;
     
     @Override
     public abstract void init(GameContainer gc, StateBasedGame sbg) throws SlickException;

@@ -7,6 +7,10 @@ public class PartyComponent extends EntityComponent{
 
     private ArrayList<Entity> party;
     
+    public PartyComponent(){
+        party = new ArrayList();
+    }
+    
     public PartyComponent(Entity...entities){
         party = new ArrayList();
         for(Entity entity : entities){

@@ -28,7 +28,7 @@ public class UserFactory implements EntityFactory{
     private Animation sprite, up, down, left, right;
     private SpriteSheet spritesheet;
     
-    public UserFactory(float x, float y) throws SlickException{
+    public UserFactory(float x, float y){
         xpos=x;
         ypos=y;
         spritesheet = ResourceManager.getInstance().userSheet;

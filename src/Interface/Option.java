@@ -16,26 +16,33 @@ import org.newdawn.slick.util.ResourceLoader;
  */
 public class Option extends UIComponent{
 
+    private Panel containingPanel;
     private Panel destination;
     private String name;
     private int margin = 2;
     
     /*Constructor to test with dead end options*/
-    public Option(TrueTypeFont font){
+    public Option(Panel containing, TrueTypeFont font){
+        this.containingPanel=containing;
         setFont(font);
-        setDestination(null);
+        this.destination=containing;
+        this.destination.setParent(containing);
         name="DEAD END";
     }
     /*Constructor to give text-only options*/
-    public Option(TrueTypeFont font, Panel destination, String name){
+    public Option(Panel containing, Panel destination, TrueTypeFont font, String name){
+        this.containingPanel=containing;
+        this.destination=destination;
+        this.destination.setParent(containing);
         setFont(font);
-        setDestination(destination);
         this.name = name;
     }
-    
-    public Option(TrueTypeFont font, Panel destination, Image img, String name){
+    /* Constructor for options with an icon */
+    public Option(Panel containing, Panel destination, TrueTypeFont font, Image img, String name){
+        this.containingPanel=containing;
+        this.destination=destination;
+        this.destination.setParent(containing);
         setFont(font);
-        setDestination(destination);
         setImage(img);
         this.name=name;
         
@@ -46,6 +53,12 @@ public class Option extends UIComponent{
     }
     public void setDestination(Panel Destination) {
         this.destination = Destination;
+    }
+    public Panel getContainingPanel() {
+        return containingPanel;
+    }
+    public void setContainingPanel(Panel containingPanel) {
+        this.containingPanel = containingPanel;
     }
     
     @Override
@@ -63,8 +76,9 @@ public class Option extends UIComponent{
     }
 
     
-    /*Called when this option's Panel is done initializing*/
-    public void Scale(){
+    /*Called when this option's Panel is done initializing
+      Inflates the option's icon and string to fit the options available space which is defined by containing Panel*/
+    public void inflate(){
         if(getImage() != null){
             setImage(getImage().getScaledCopy(getWidth()/5, getWidth()/5));
         }
@@ -83,5 +97,6 @@ public class Option extends UIComponent{
         
         
     }
+    
 
 }

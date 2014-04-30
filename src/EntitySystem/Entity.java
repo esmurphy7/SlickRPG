@@ -2,6 +2,7 @@
 package EntitySystem;
 
 import java.util.ArrayList;
+import org.newdawn.slick.util.Log;
 
 public class Entity {
 
@@ -32,6 +33,7 @@ public class Entity {
                 }
             }
         }
+        Log.error("Attempted to get non-existant component: "+classType);
         return null;
     }
     

@@ -26,7 +26,6 @@ public class Level110 extends Level{
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException{
         this.map = ResourceManager.getInstance().level110Map;
-        user=null;
         super.abstractInit(gc, sbg);
         initCharacters();
     }
