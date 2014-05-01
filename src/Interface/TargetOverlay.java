@@ -30,8 +30,8 @@ public class TargetOverlay extends Panel{
     private int totalEnemies;
     private int totalFriendlies;
     
-    private ArrayList<Point> enemyPoints = new ArrayList();;
-    private ArrayList<Point> friendlyPoints = new ArrayList();;
+    private ArrayList<Point> enemyPoints = new ArrayList();
+    private ArrayList<Point> friendlyPoints = new ArrayList();
     
     /* Hardcoded points on enemy grid (left half)*/
     /*
